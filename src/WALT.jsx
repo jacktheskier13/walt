@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { Analytics } from "@vercel/analytics/react";
 
 // ============================================================
 // WALT — MONTANA LEGAL HELP MARKETPLACE
@@ -2891,6 +2892,7 @@ Respond ONLY with a JSON object (no markdown, no explanation):
           © 2026 WALT, LLC. All rights reserved. • Montana Jurisdiction Only
         </p>
       </footer>
+      <Analytics />
     </>
   );
 }
