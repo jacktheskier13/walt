@@ -1,0 +1,22 @@
+{
+  "functions": {
+    "api/chat.js": {
+      "memory": 256,
+      "maxDuration": 30
+    },
+    "api/assess.js": {
+      "memory": 256,
+      "maxDuration": 30
+    },
+    "api/document.js": {
+      "memory": 512,
+      "maxDuration": 60
+    }
+  },
+  "rewrites": [
+    { "source": "/api/chat", "destination": "/api/chat" },
+    { "source": "/api/assess", "destination": "/api/assess" },
+    { "source": "/api/document", "destination": "/api/document" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
