@@ -11,12 +11,27 @@
     "api/document.js": {
       "memory": 512,
       "maxDuration": 60
+    },
+    "api/auth.js": {
+      "memory": 256,
+      "maxDuration": 10
+    },
+    "api/cases.js": {
+      "memory": 256,
+      "maxDuration": 10
+    },
+    "api/bids.js": {
+      "memory": 256,
+      "maxDuration": 10
     }
   },
   "rewrites": [
     { "source": "/api/chat", "destination": "/api/chat" },
     { "source": "/api/assess", "destination": "/api/assess" },
     { "source": "/api/document", "destination": "/api/document" },
+    { "source": "/api/auth", "destination": "/api/auth" },
+    { "source": "/api/cases", "destination": "/api/cases" },
+    { "source": "/api/bids", "destination": "/api/bids" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

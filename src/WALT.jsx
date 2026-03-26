@@ -919,13 +919,15 @@ function ClientPortal({ clientData, cases, onLogout, onStartNewClaim, savedDocum
 }
 
 // ─── ATTORNEY PARTNERS DASHBOARD ────────────────────────────
-function AttorneyDashboard({ cases, currentAttorney, onBidSubmit }) {
+function AttorneyDashboard({ cases, currentAttorney, onBidSubmit, signups }) {
   const [expandedCase, setExpandedCase] = useState(null);
   const [bidForms, setBidForms] = useState({});
   const [expandedAssessments, setExpandedAssessments] = useState({});
+  const [showSignups, setShowSignups] = useState(false);
 
   const toggleAssessment = (caseId) => setExpandedAssessments(prev => ({ ...prev, [caseId]: !prev[caseId] }));
 
+  const isAdmin = currentAttorney?.email === "j.davies@daviesinjurylaw.com";
   const attorneyTier = currentAttorney?.tier || "free";
   const isGold = attorneyTier === "gold";
   const isSilver = attorneyTier === "silver";
@@ -1084,6 +1086,89 @@ function AttorneyDashboard({ cases, currentAttorney, onBidSubmit }) {
           )}
         </div>
       </div>
+
+      {/* ── ADMIN SIGNUPS PANEL (j.davies only) ── */}
+      {isAdmin && (
+        <div style={{ marginBottom: "28px" }}>
+          <div
+            onClick={() => setShowSignups(prev => !prev)}
+            style={{
+              background: "rgba(30,58,95,0.04)",
+              border: "1px solid rgba(30,58,95,0.15)",
+              borderRadius: "10px",
+              padding: "12px 18px",
+              cursor: "pointer",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              userSelect: "none"
+            }}
+          >
+            <div>
+              <span style={{ fontWeight: 700, color: "var(--navy)", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "1.2px" }}>
+                Admin — Account Signups
+              </span>
+              <span style={{ marginLeft: "12px", fontSize: "0.72rem", color: "var(--muted)" }}>
+                {signups?.length || 0} total
+              </span>
+            </div>
+            <span style={{ color: "var(--navy)", fontSize: "0.85rem", fontWeight: 600 }}>
+              {showSignups ? "▲ Hide" : "▼ View"}
+            </span>
+          </div>
+
+          {showSignups && (
+            <div style={{ border: "1px solid rgba(30,58,95,0.1)", borderTop: "none", borderRadius: "0 0 10px 10px", overflow: "hidden" }}>
+              {(!signups || signups.length === 0) ? (
+                <div style={{ padding: "24px", textAlign: "center", color: "var(--muted)", fontSize: "0.85rem" }}>
+                  No signups yet. Share the link!
+                </div>
+              ) : (
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.8rem" }}>
+                  <thead>
+                    <tr style={{ background: "var(--cream)", borderBottom: "1px solid var(--sand)" }}>
+                      <th style={{ padding: "10px 16px", textAlign: "left", fontWeight: 600, color: "var(--navy)", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.8px" }}>Type</th>
+                      <th style={{ padding: "10px 16px", textAlign: "left", fontWeight: 600, color: "var(--navy)", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.8px" }}>Name</th>
+                      <th style={{ padding: "10px 16px", textAlign: "left", fontWeight: 600, color: "var(--navy)", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.8px" }}>Email</th>
+                      <th style={{ padding: "10px 16px", textAlign: "left", fontWeight: 600, color: "var(--navy)", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.8px" }}>Details</th>
+                      <th style={{ padding: "10px 16px", textAlign: "left", fontWeight: 600, color: "var(--navy)", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.8px" }}>Signed Up</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {signups.map((s, i) => (
+                      <tr key={i} style={{ borderBottom: "1px solid var(--sand)", background: i % 2 === 0 ? "#fff" : "var(--cream)" }}>
+                        <td style={{ padding: "10px 16px" }}>
+                          <span style={{
+                            display: "inline-block",
+                            fontSize: "0.65rem",
+                            fontWeight: 700,
+                            textTransform: "uppercase",
+                            letterSpacing: "0.8px",
+                            padding: "2px 8px",
+                            borderRadius: "50px",
+                            background: s.type === "attorney" ? "rgba(197,165,114,0.15)" : "rgba(107,127,124,0.12)",
+                            color: s.type === "attorney" ? "var(--gold)" : "var(--sage-dark)"
+                          }}>
+                            {s.type === "attorney" ? "Attorney" : "Client"}
+                          </span>
+                        </td>
+                        <td style={{ padding: "10px 16px", color: "var(--charcoal)", fontWeight: 500 }}>{s.name}</td>
+                        <td style={{ padding: "10px 16px", color: "var(--muted)" }}>{s.email}</td>
+                        <td style={{ padding: "10px 16px", color: "var(--muted)", fontSize: "0.75rem" }}>
+                          {s.type === "attorney" ? (s.firm || "Solo Practice") : "—"}
+                        </td>
+                        <td style={{ padding: "10px 16px", color: "var(--muted)" }}>
+                          {new Date(s.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="case-grid">
         {visibleCases.length === 0 && (
@@ -2298,12 +2383,57 @@ export default function App() {
     }
   ]);
   
-  const [clientAccounts, setClientAccounts] = useState([]);
   const [isGuestFlow, setIsGuestFlow] = useState(false);
   const [savedDocuments, setSavedDocuments] = useState([]);
-  const [attorneyAccounts, setAttorneyAccounts] = useState([]);
   const [showPortalDropdown, setShowPortalDropdown] = useState(false);
   const [pendingDocument, setPendingDocument] = useState(null);
+  const [casesLoading, setCasesLoading] = useState(false);
+  const [signups, setSignups] = useState([]);
+
+  // ── LOAD CASES FROM KV ON MOUNT ───────────────────────────
+  useEffect(() => {
+    loadCases();
+  }, []);
+
+  const loadCases = async () => {
+    setCasesLoading(true);
+    try {
+      const res = await fetch("/api/cases", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "get-cases" })
+      });
+      const data = await res.json();
+      if (data.cases && data.cases.length > 0) {
+        // Merge KV cases with demo cases, KV takes priority
+        setCases(prev => {
+          const kvIds = new Set(data.cases.map(c => c.id));
+          const demoCases = prev.filter(c => !kvIds.has(c.id));
+          return [...data.cases, ...demoCases];
+        });
+      }
+    } catch (e) {
+      console.error("Failed to load cases:", e);
+    } finally {
+      setCasesLoading(false);
+    }
+  };
+
+  // ── LOAD SIGNUPS FOR ADMIN (j.davies only) ────────────────
+  const loadSignups = async (email) => {
+    if (email !== "j.davies@daviesinjurylaw.com") return;
+    try {
+      const res = await fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "get-signups", email })
+      });
+      const data = await res.json();
+      if (data.signups) setSignups(data.signups);
+    } catch (e) {
+      console.error("Failed to load signups:", e);
+    }
+  };
 
   // Close portal dropdown when clicking outside
   useEffect(() => {
@@ -2339,78 +2469,72 @@ export default function App() {
     }
   };
 
-  const handleLogin = (username, password) => {
-    if (loginType === "attorney") {
-      let attorney = ATTORNEY_PARTNERS.find(a => 
-        a.email.split("@")[0] === username.toLowerCase()
-      );
-      
-      if (!attorney) {
-        attorney = attorneyAccounts.find(a => a.email === username);
+  const handleLogin = async (username, password) => {
+    try {
+      const res = await fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "login", username, password, loginType })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || "Login failed. Please try again.");
+        return;
       }
-      
-      if (attorney && password === "walt2025") {
-        setCurrentUser({ type: "attorney", ...attorney });
-        setShowLoginModal(false);
-        setPage("dashboard");
-      } else if (attorney && attorney.password === password) {
-        setCurrentUser({ type: "attorney", ...attorney });
-        setShowLoginModal(false);
+      setCurrentUser(data.user);
+      setShowLoginModal(false);
+      if (data.user.type === "attorney") {
+        await loadCases();
+        await loadSignups(data.user.email);
         setPage("dashboard");
       } else {
-        alert("Invalid credentials. For demo attorneys, try username: m.holloway, password: walt2025");
-      }
-    } else {
-      const client = clientAccounts.find(a => a.email === username && a.password === password);
-      if (client) {
-        setCurrentUser({ type: "client", ...client });
-        setShowLoginModal(false);
         setPage("client-portal");
-      } else {
-        alert("Invalid credentials. Please check your email and password, or create an account.");
       }
+    } catch (e) {
+      console.error("Login error:", e);
+      alert("Login failed. Please try again.");
     }
   };
 
-  const handleAccountCreation = (accountData) => {
-    if (clientAccounts.find(a => a.email === accountData.email)) {
-      alert("An account with this email already exists. Please log in instead.");
-      return;
-    }
+  const handleAccountCreation = async (accountData) => {
+    try {
+      const res = await fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "signup-client", ...accountData })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || "Account creation failed. Please try again.");
+        return;
+      }
 
-    const newAccount = {
-      type: "client",
-      firstName: accountData.firstName,
-      lastInitial: accountData.lastInitial,
-      phone: accountData.phone,
-      email: accountData.email,
-      password: accountData.password
-    };
+      setCurrentUser(data.user);
 
-    setClientAccounts(prev => [...prev, newAccount]);
-    setCurrentUser(newAccount);
-    
-    // If there's a pending document from self-service, save it now
-    if (pendingDocument) {
-      setSavedDocuments(prev => [...prev, {
-        type: "Answer to Debt Collection Complaint",
-        caseNumber: pendingDocument.extractedData.caseNumber,
-        plaintiff: pendingDocument.extractedData.plaintiff,
-        documentText: pendingDocument.documentText,
-        createdAt: new Date().toISOString(),
-        clientEmail: newAccount.email
-      }]);
-      setPendingDocument(null);
-      alert(`Welcome, ${accountData.firstName}! Your account has been created and your document has been saved.`);
-      setPage("client-portal");
-      return;
-    }
-    
-    if (isGuestFlow && caseData) {
-      setPage("summary");
-    } else {
-      alert(`Welcome, ${accountData.firstName}! Your account has been created.`);
-      setPage("client-portal");
+      if (pendingDocument) {
+        setSavedDocuments(prev => [...prev, {
+          type: "Answer to Debt Collection Complaint",
+          caseNumber: pendingDocument.extractedData.caseNumber,
+          plaintiff: pendingDocument.extractedData.plaintiff,
+          documentText: pendingDocument.documentText,
+          createdAt: new Date().toISOString(),
+          clientEmail: data.user.email
+        }]);
+        setPendingDocument(null);
+        alert(`Welcome, ${accountData.firstName}! Your account has been created and your document has been saved.`);
+        setPage("client-portal");
+        return;
+      }
+
+      if (isGuestFlow && caseData) {
+        setPage("summary");
+      } else {
+        alert(`Welcome, ${accountData.firstName}! Your account has been created.`);
+        setPage("client-portal");
+      }
+    } catch (e) {
+      console.error("Account creation error:", e);
+      alert("Account creation failed. Please try again.");
     }
   };
 
@@ -2419,34 +2543,25 @@ export default function App() {
     setPage("create-account");
   };
 
-  const handleAttorneySignup = (attorneyData) => {
-    if (attorneyAccounts.find(a => a.email === attorneyData.email)) {
-      alert("An account with this email already exists. Please log in instead.");
-      return;
+  const handleAttorneySignup = async (attorneyData) => {
+    try {
+      const res = await fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "signup-attorney", ...attorneyData })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || "Registration failed. Please try again.");
+        return;
+      }
+      setCurrentUser(data.user);
+      alert(`Welcome to WALT, ${attorneyData.name}! Your Gold tier account has been created.`);
+      setPage("dashboard");
+    } catch (e) {
+      console.error("Attorney signup error:", e);
+      alert("Registration failed. Please try again.");
     }
-    
-    if (attorneyAccounts.find(a => a.barNumber === attorneyData.barNumber)) {
-      alert("This bar number is already registered. Please log in instead.");
-      return;
-    }
-    
-    const newAttorney = {
-      type: "attorney",
-      id: Date.now(),
-      name: attorneyData.name,
-      barNumber: attorneyData.barNumber,
-      firm: attorneyData.firm || "Solo Practice",
-      email: attorneyData.email,
-      phone: attorneyData.phone,
-      password: attorneyData.password,
-      practiceAreas: attorneyData.practiceAreas
-    };
-    
-    setAttorneyAccounts(prev => [...prev, newAttorney]);
-    setCurrentUser(newAttorney);
-    
-    alert(`Welcome to WALT, ${attorneyData.name}! Your attorney account has been created.`);
-    setPage("landing");
   };
 
   const handleIntakeComplete = (data) => {
@@ -2557,57 +2672,101 @@ Respond ONLY with a JSON object (no markdown, no explanation):
       assessmentPending: true
     };
 
+    // Optimistically add to local state so client sees it immediately
     setCases(prev => [newCase, ...prev]);
     alert(`Thank you, ${currentUser.firstName}! Your case has been submitted to our Montana attorney network.\n\nCase ID: ${caseId}`);
     setCaseData(null);
     setIsGuestFlow(false);
     setPage("client-portal");
 
-    // Run assessment in background — attorneys will see it once ready
+    // Persist to KV
+    try {
+      await fetch("/api/cases", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "submit-case", caseData: newCase })
+      });
+    } catch (e) {
+      console.error("Failed to persist case:", e);
+    }
+
+    // Generate assessment in background, then persist it
     const assessment = await generateCaseAssessment(caseData);
-    if (assessment) {
-      setCases(prev => prev.map(c =>
-        c.id === caseId ? { ...c, assessment, assessmentPending: false } : c
-      ));
-    } else {
-      setCases(prev => prev.map(c =>
-        c.id === caseId ? { ...c, assessmentPending: false } : c
-      ));
+    const updatedAssessment = assessment || null;
+
+    setCases(prev => prev.map(c =>
+      c.id === caseId ? { ...c, assessment: updatedAssessment, assessmentPending: false } : c
+    ));
+
+    try {
+      await fetch("/api/cases", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "update-assessment", caseId, assessment: updatedAssessment })
+      });
+    } catch (e) {
+      console.error("Failed to persist assessment:", e);
     }
   };
 
-  const handleBidSubmit = (caseId, bid) => {
-    // Update the case with the new bid
-    setCases(prev => prev.map(c => 
-      c.id === caseId 
+  const handleBidSubmit = async (caseId, bid) => {
+    // Optimistic local update
+    setCases(prev => prev.map(c =>
+      c.id === caseId
         ? { ...c, bids: [...(c.bids || []), { ...bid, submittedAt: new Date().toISOString() }] }
         : c
     ));
-    
+
     // Decrement bid count for free tier attorneys
-    if (currentUser?.type === "attorney" && currentUser?.tier === "free") {
+    if (currentUser?.tier === "free") {
       setCurrentUser(prev => ({
         ...prev,
         bidsThisMonth: (prev.bidsThisMonth || 0) + 1,
         bidsRemaining: Math.max(0, (prev.bidsRemaining || 0) - 1)
       }));
-      
-      // Also update in ATTORNEY_PARTNERS array if it's one of the demo attorneys
-      const partnerIndex = ATTORNEY_PARTNERS.findIndex(a => a.email === currentUser.email);
-      if (partnerIndex !== -1) {
-        ATTORNEY_PARTNERS[partnerIndex].bidsThisMonth = (ATTORNEY_PARTNERS[partnerIndex].bidsThisMonth || 0) + 1;
-        ATTORNEY_PARTNERS[partnerIndex].bidsRemaining = Math.max(0, (ATTORNEY_PARTNERS[partnerIndex].bidsRemaining || 0) - 1);
-      }
+    }
+
+    // Persist to KV
+    try {
+      await fetch("/api/bids", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "place-bid", caseId, bid })
+      });
+    } catch (e) {
+      console.error("Failed to persist bid:", e);
     }
   };
 
-  const handleSelectAttorney = (caseId, selectedBid) => {
-    setCases(prev => prev.map(c => 
-      c.id === caseId 
+  const handleSelectAttorney = async (caseId, selectedBid) => {
+    // Optimistic local update
+    setCases(prev => prev.map(c =>
+      c.id === caseId
         ? { ...c, selectedAttorney: selectedBid, status: "closed" }
         : c
     ));
+
+    // Persist to KV
+    try {
+      await fetch("/api/bids", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "select-attorney", caseId, selectedBid })
+      });
+    } catch (e) {
+      console.error("Failed to persist attorney selection:", e);
+    }
   };
+
+  // Reload cases whenever attorney visits dashboard so cross-device bids appear
+  useEffect(() => {
+    if (page === "dashboard" && currentUser?.type === "attorney") {
+      loadCases();
+    }
+    if (page === "client-portal" && currentUser?.type === "client") {
+      loadCases();
+    }
+  }, [page]);
 
   const handleLogout = () => {
     setCurrentUser(null);
@@ -2791,6 +2950,7 @@ Respond ONLY with a JSON object (no markdown, no explanation):
           cases={cases}
           currentAttorney={currentUser}
           onBidSubmit={handleBidSubmit}
+          signups={signups}
         />
       )}
 
