@@ -522,6 +522,7 @@ function AccountCreation({ onComplete, onBack, contextMessage }) {
 function AttorneySignup({ onComplete, onBack }) {
   const [formData, setFormData] = useState({
     name: "",
+    username: "",
     barNumber: "",
     firm: "",
     email: "",
@@ -540,8 +541,13 @@ function AttorneySignup({ onComplete, onBack }) {
   };
 
   const handleSubmit = () => {
-    if (!formData.name || !formData.barNumber || !formData.email || !formData.phone || !formData.password) {
+    if (!formData.name || !formData.username || !formData.barNumber || !formData.email || !formData.phone || !formData.password) {
       alert("Please fill out all required fields");
+      return;
+    }
+
+    if (!/^[a-zA-Z0-9._-]{3,30}$/.test(formData.username)) {
+      alert("Username must be 3–30 characters and may only contain letters, numbers, periods, underscores, or hyphens.");
       return;
     }
     
@@ -587,6 +593,21 @@ function AttorneySignup({ onComplete, onBack }) {
                 onKeyPress={handleKeyPress}
                 required
               />
+            </div>
+
+            <div className="form-group">
+              <label>Username *</label>
+              <input 
+                type="text" 
+                placeholder="e.g., s.martinez"
+                value={formData.username}
+                onChange={e => setFormData({...formData, username: e.target.value.toLowerCase()})}
+                onKeyPress={handleKeyPress}
+                required
+              />
+              <p style={{ fontSize: "0.75rem", color: "var(--muted)", marginTop: "4px" }}>
+                3–30 characters. Letters, numbers, periods, underscores, and hyphens only. You'll use this to log in.
+              </p>
             </div>
             
             <div className="form-group">
@@ -701,7 +722,7 @@ function AttorneySignup({ onComplete, onBack }) {
                 Back
               </button>
               <button className="btn btn-primary" onClick={handleSubmit}>
-                Register as Attorney Partner
+                Submit Application
               </button>
             </div>
           </div>
@@ -919,11 +940,13 @@ function ClientPortal({ clientData, cases, onLogout, onStartNewClaim, savedDocum
 }
 
 // ─── ATTORNEY PARTNERS DASHBOARD ────────────────────────────
-function AttorneyDashboard({ cases, currentAttorney, onBidSubmit, signups }) {
+function AttorneyDashboard({ cases, currentAttorney, onBidSubmit, signups, onApproveAttorney, onDenyAttorney, onDeleteAccount, onChangeTier }) {
   const [expandedCase, setExpandedCase] = useState(null);
   const [bidForms, setBidForms] = useState({});
   const [expandedAssessments, setExpandedAssessments] = useState({});
   const [showSignups, setShowSignups] = useState(false);
+  const [adminTab, setAdminTab] = useState("pending"); // "pending" | "approved" | "all"
+  const [approvalTiers, setApprovalTiers] = useState({}); // { email: "gold"|"silver"|"free" }
 
   const toggleAssessment = (caseId) => setExpandedAssessments(prev => ({ ...prev, [caseId]: !prev[caseId] }));
 
@@ -1087,7 +1110,7 @@ function AttorneyDashboard({ cases, currentAttorney, onBidSubmit, signups }) {
         </div>
       </div>
 
-      {/* ── ADMIN SIGNUPS PANEL (j.davies only) ── */}
+      {/* ── ADMIN PANEL (j.davies only) ── */}
       {isAdmin && (
         <div style={{ marginBottom: "28px" }}>
           <div
@@ -1095,7 +1118,7 @@ function AttorneyDashboard({ cases, currentAttorney, onBidSubmit, signups }) {
             style={{
               background: "rgba(30,58,95,0.04)",
               border: "1px solid rgba(30,58,95,0.15)",
-              borderRadius: "10px",
+              borderRadius: showSignups ? "10px 10px 0 0" : "10px",
               padding: "12px 18px",
               cursor: "pointer",
               display: "flex",
@@ -1106,10 +1129,12 @@ function AttorneyDashboard({ cases, currentAttorney, onBidSubmit, signups }) {
           >
             <div>
               <span style={{ fontWeight: 700, color: "var(--navy)", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "1.2px" }}>
-                Admin — Account Signups
+                Admin — Attorney Applications
               </span>
               <span style={{ marginLeft: "12px", fontSize: "0.72rem", color: "var(--muted)" }}>
-                {signups?.length || 0} total
+                {(signups || []).filter(s => s.type === "attorney" && s.status === "pending").length} pending
+                {" · "}
+                {(signups || []).filter(s => s.type === "attorney").length} total attorneys
               </span>
             </div>
             <span style={{ color: "var(--navy)", fontSize: "0.85rem", fontWeight: 600 }}>
@@ -1117,56 +1142,199 @@ function AttorneyDashboard({ cases, currentAttorney, onBidSubmit, signups }) {
             </span>
           </div>
 
-          {showSignups && (
-            <div style={{ border: "1px solid rgba(30,58,95,0.1)", borderTop: "none", borderRadius: "0 0 10px 10px", overflow: "hidden" }}>
-              {(!signups || signups.length === 0) ? (
-                <div style={{ padding: "24px", textAlign: "center", color: "var(--muted)", fontSize: "0.85rem" }}>
-                  No signups yet. Share the link!
+          {showSignups && (() => {
+            const attorneys = (signups || []).filter(s => s.type === "attorney");
+            const pending = attorneys.filter(s => s.status === "pending");
+            const approved = attorneys.filter(s => s.status === "approved");
+            const denied = attorneys.filter(s => s.status === "denied");
+            const clients = (signups || []).filter(s => s.type === "client");
+
+            const tabList = [
+              { key: "pending", label: `Pending (${pending.length})` },
+              { key: "approved", label: `Approved (${approved.length})` },
+              { key: "denied", label: `Denied (${denied.length})` },
+              { key: "clients", label: `Clients (${clients.length})` },
+            ];
+
+            const tabData = { pending, approved, denied, clients };
+            const rows = tabData[adminTab] || [];
+
+            const tierColor = (t) => t === "gold" ? "var(--gold)" : t === "silver" ? "#64748B" : "var(--sage)";
+            const tierBg = (t) => t === "gold" ? "rgba(197,165,114,0.12)" : t === "silver" ? "rgba(148,163,184,0.12)" : "rgba(107,127,124,0.1)";
+
+            return (
+              <div style={{ border: "1px solid rgba(30,58,95,0.1)", borderTop: "none", borderRadius: "0 0 10px 10px", overflow: "hidden" }}>
+                {/* Tab bar */}
+                <div style={{ display: "flex", background: "var(--cream)", borderBottom: "1px solid var(--sand)" }}>
+                  {tabList.map(t => (
+                    <button
+                      key={t.key}
+                      onClick={() => setAdminTab(t.key)}
+                      style={{
+                        padding: "10px 18px",
+                        fontSize: "0.75rem",
+                        fontWeight: adminTab === t.key ? 700 : 400,
+                        color: adminTab === t.key ? "var(--navy)" : "var(--muted)",
+                        background: "transparent",
+                        border: "none",
+                        borderBottom: adminTab === t.key ? "2px solid var(--navy)" : "2px solid transparent",
+                        cursor: "pointer",
+                        fontFamily: "inherit",
+                        transition: "all 0.15s"
+                      }}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
                 </div>
-              ) : (
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.8rem" }}>
-                  <thead>
-                    <tr style={{ background: "var(--cream)", borderBottom: "1px solid var(--sand)" }}>
-                      <th style={{ padding: "10px 16px", textAlign: "left", fontWeight: 600, color: "var(--navy)", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.8px" }}>Type</th>
-                      <th style={{ padding: "10px 16px", textAlign: "left", fontWeight: 600, color: "var(--navy)", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.8px" }}>Name</th>
-                      <th style={{ padding: "10px 16px", textAlign: "left", fontWeight: 600, color: "var(--navy)", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.8px" }}>Email</th>
-                      <th style={{ padding: "10px 16px", textAlign: "left", fontWeight: 600, color: "var(--navy)", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.8px" }}>Details</th>
-                      <th style={{ padding: "10px 16px", textAlign: "left", fontWeight: 600, color: "var(--navy)", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.8px" }}>Signed Up</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {signups.map((s, i) => (
-                      <tr key={i} style={{ borderBottom: "1px solid var(--sand)", background: i % 2 === 0 ? "#fff" : "var(--cream)" }}>
-                        <td style={{ padding: "10px 16px" }}>
-                          <span style={{
-                            display: "inline-block",
-                            fontSize: "0.65rem",
-                            fontWeight: 700,
-                            textTransform: "uppercase",
-                            letterSpacing: "0.8px",
-                            padding: "2px 8px",
-                            borderRadius: "50px",
-                            background: s.type === "attorney" ? "rgba(197,165,114,0.15)" : "rgba(107,127,124,0.12)",
-                            color: s.type === "attorney" ? "var(--gold)" : "var(--sage-dark)"
-                          }}>
-                            {s.type === "attorney" ? "Attorney" : "Client"}
-                          </span>
-                        </td>
-                        <td style={{ padding: "10px 16px", color: "var(--charcoal)", fontWeight: 500 }}>{s.name}</td>
-                        <td style={{ padding: "10px 16px", color: "var(--muted)" }}>{s.email}</td>
-                        <td style={{ padding: "10px 16px", color: "var(--muted)", fontSize: "0.75rem" }}>
-                          {s.type === "attorney" ? (s.firm || "Solo Practice") : "—"}
-                        </td>
-                        <td style={{ padding: "10px 16px", color: "var(--muted)" }}>
-                          {new Date(s.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                        </td>
+
+                {rows.length === 0 ? (
+                  <div style={{ padding: "28px", textAlign: "center", color: "var(--muted)", fontSize: "0.85rem" }}>
+                    {adminTab === "pending" ? "No pending applications." : adminTab === "approved" ? "No approved attorneys yet." : adminTab === "denied" ? "No denied applications." : "No client accounts yet."}
+                  </div>
+                ) : (
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.8rem" }}>
+                    <thead>
+                      <tr style={{ background: "var(--cream)", borderBottom: "1px solid var(--sand)" }}>
+                        <th style={{ padding: "10px 14px", textAlign: "left", fontWeight: 600, color: "var(--navy)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.8px" }}>Name</th>
+                        <th style={{ padding: "10px 14px", textAlign: "left", fontWeight: 600, color: "var(--navy)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.8px" }}>Username / Email</th>
+                        {adminTab !== "clients" && (
+                          <th style={{ padding: "10px 14px", textAlign: "left", fontWeight: 600, color: "var(--navy)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.8px" }}>Bar # / Firm</th>
+                        )}
+                        {adminTab !== "clients" && (
+                          <th style={{ padding: "10px 14px", textAlign: "left", fontWeight: 600, color: "var(--navy)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.8px" }}>Tier</th>
+                        )}
+                        <th style={{ padding: "10px 14px", textAlign: "left", fontWeight: 600, color: "var(--navy)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.8px" }}>Date</th>
+                        <th style={{ padding: "10px 14px", textAlign: "left", fontWeight: 600, color: "var(--navy)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.8px" }}>Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          )}
+                    </thead>
+                    <tbody>
+                      {rows.map((s, i) => (
+                        <tr key={i} style={{ borderBottom: "1px solid var(--sand)", background: i % 2 === 0 ? "#fff" : "var(--cream)", verticalAlign: "middle" }}>
+                          <td style={{ padding: "10px 14px", fontWeight: 500, color: "var(--charcoal)" }}>{s.name}</td>
+                          <td style={{ padding: "10px 14px" }}>
+                            {s.username && (
+                              <div style={{ fontWeight: 600, color: "var(--navy)", fontSize: "0.78rem" }}>@{s.username}</div>
+                            )}
+                            <div style={{ color: "var(--muted)", fontSize: "0.75rem" }}>{s.email}</div>
+                          </td>
+                          {adminTab !== "clients" && (
+                            <td style={{ padding: "10px 14px", color: "var(--muted)", fontSize: "0.75rem" }}>
+                              <div>Bar #{s.barNumber || "—"}</div>
+                              <div>{s.firm || "Solo"}</div>
+                            </td>
+                          )}
+                          {adminTab !== "clients" && (
+                            <td style={{ padding: "10px 14px" }}>
+                              {adminTab === "approved" ? (
+                                <select
+                                  value={s.tier || "free"}
+                                  onChange={e => onChangeTier(s.email, e.target.value)}
+                                  style={{
+                                    padding: "4px 8px",
+                                    borderRadius: "6px",
+                                    border: `1.5px solid ${tierColor(s.tier || "free")}`,
+                                    color: tierColor(s.tier || "free"),
+                                    background: tierBg(s.tier || "free"),
+                                    fontSize: "0.75rem",
+                                    fontWeight: 600,
+                                    fontFamily: "inherit",
+                                    cursor: "pointer"
+                                  }}
+                                >
+                                  <option value="free">Free</option>
+                                  <option value="silver">Silver</option>
+                                  <option value="gold">Gold</option>
+                                </select>
+                              ) : adminTab === "pending" ? (
+                                <select
+                                  value={approvalTiers[s.email] || "free"}
+                                  onChange={e => setApprovalTiers(prev => ({ ...prev, [s.email]: e.target.value }))}
+                                  style={{
+                                    padding: "4px 8px",
+                                    borderRadius: "6px",
+                                    border: "1.5px solid var(--sand)",
+                                    fontSize: "0.75rem",
+                                    fontFamily: "inherit",
+                                    cursor: "pointer"
+                                  }}
+                                >
+                                  <option value="free">Free</option>
+                                  <option value="silver">Silver</option>
+                                  <option value="gold">Gold</option>
+                                </select>
+                              ) : (
+                                <span style={{ fontSize: "0.72rem", fontWeight: 600, textTransform: "uppercase", color: "var(--muted)" }}>—</span>
+                              )}
+                            </td>
+                          )}
+                          <td style={{ padding: "10px 14px", color: "var(--muted)", fontSize: "0.75rem" }}>
+                            {new Date(s.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                          </td>
+                          <td style={{ padding: "10px 14px" }}>
+                            <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                              {adminTab === "pending" && (
+                                <>
+                                  <button
+                                    onClick={() => onApproveAttorney(s.email, approvalTiers[s.email] || "free")}
+                                    style={{
+                                      padding: "4px 12px",
+                                      fontSize: "0.72rem",
+                                      fontWeight: 600,
+                                      border: "none",
+                                      borderRadius: "50px",
+                                      background: "var(--success)",
+                                      color: "#fff",
+                                      cursor: "pointer",
+                                      fontFamily: "inherit"
+                                    }}
+                                  >
+                                    Approve
+                                  </button>
+                                  <button
+                                    onClick={() => onDenyAttorney(s.email)}
+                                    style={{
+                                      padding: "4px 12px",
+                                      fontSize: "0.72rem",
+                                      fontWeight: 600,
+                                      border: "1px solid var(--danger)",
+                                      borderRadius: "50px",
+                                      background: "transparent",
+                                      color: "var(--danger)",
+                                      cursor: "pointer",
+                                      fontFamily: "inherit"
+                                    }}
+                                  >
+                                    Deny
+                                  </button>
+                                </>
+                              )}
+                              <button
+                                onClick={() => onDeleteAccount(s.email)}
+                                style={{
+                                  padding: "4px 10px",
+                                  fontSize: "0.7rem",
+                                  fontWeight: 600,
+                                  border: "1px solid var(--sand)",
+                                  borderRadius: "50px",
+                                  background: "transparent",
+                                  color: "var(--muted)",
+                                  cursor: "pointer",
+                                  fontFamily: "inherit"
+                                }}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            );
+          })()}
         </div>
       )}
 
@@ -1694,67 +1862,6 @@ function AboutPage() {
             Montana has unique legal characteristics—from its court system to specific statutes like the Residential 
             Landlord and Tenant Act. WALT is built exclusively for Montana law to ensure clients get connected with 
             attorneys who understand the local landscape. We may expand to other states in the future.
-          </p>
-        </div>
-      </div>
-
-      <div className="about-block">
-        <h3>Ethics &amp; Compliance</h3>
-        <p>
-          WALT is designed from the ground up to operate in full compliance with both the ABA Model Rules of Professional 
-          Conduct and the Montana Rules of Professional Conduct. Our subscription-based revenue model and operational 
-          structure reflect a deliberate commitment to legal ethics — not as an afterthought, but as a core design principle.
-        </p>
-
-        <div style={{ marginTop: "20px" }}>
-          <h4 style={{ fontSize: "0.95rem", color: "var(--navy)", marginBottom: "8px", fontWeight: 600 }}>
-            Rule 5.4 — Independence of the Legal Profession
-          </h4>
-          <p style={{ fontSize: "0.85rem", color: "var(--charcoal)", lineHeight: "1.7" }}>
-            Both ABA Model Rule 5.4 and Montana Rule 5.4 prohibit attorneys from sharing legal fees with 
-            non-lawyers. WALT's business model is structured entirely around flat-rate attorney subscriptions — 
-            we never take a percentage of case fees, referral fees, or contingency cuts. Attorneys pay a fixed 
-            monthly subscription for access to pre-qualified leads, and all compensation flows directly between 
-            client and attorney. This structure ensures complete attorney independence and full Rule 5.4 compliance.
-          </p>
-        </div>
-
-        <div style={{ marginTop: "20px" }}>
-          <h4 style={{ fontSize: "0.95rem", color: "var(--navy)", marginBottom: "8px", fontWeight: 600 }}>
-            Rule 7.2 — Communications Concerning Services
-          </h4>
-          <p style={{ fontSize: "0.85rem", color: "var(--charcoal)", lineHeight: "1.7" }}>
-            Montana Rule 7.2 permits attorneys to pay for advertising and referral services, provided the 
-            arrangement does not involve fee-splitting or compromise independent professional judgment. WALT 
-            operates as a permitted advertising and lead-generation platform — attorneys pay for access to 
-            the marketplace, not per referral or case outcome. This is consistent with the Montana Supreme 
-            Court's recognition that subscription-based legal marketing services are permissible under the 
-            Rules of Professional Conduct.
-          </p>
-        </div>
-
-        <div style={{ marginTop: "20px" }}>
-          <h4 style={{ fontSize: "0.95rem", color: "var(--navy)", marginBottom: "8px", fontWeight: 600 }}>
-            Unauthorized Practice of Law
-          </h4>
-          <p style={{ fontSize: "0.85rem", color: "var(--charcoal)", lineHeight: "1.7" }}>
-            WALT's AI-powered intake tool gathers and organizes information from clients — it does not analyze 
-            legal claims, advise clients on strategy, or predict legal outcomes. The platform functions as an 
-            intake and routing mechanism, not a legal advisor. All substantive legal advice is provided exclusively 
-            by licensed Montana attorneys. Our self-service document tools assist users in preparing procedural 
-            forms they are entitled to prepare themselves as pro se litigants, consistent with Montana's 
-            recognition of self-represented parties' rights.
-          </p>
-        </div>
-
-        <div style={{ marginTop: "20px" }}>
-          <h4 style={{ fontSize: "0.95rem", color: "var(--navy)", marginBottom: "8px", fontWeight: 600 }}>
-            Attorney Verification
-          </h4>
-          <p style={{ fontSize: "0.85rem", color: "var(--charcoal)", lineHeight: "1.7" }}>
-            All attorneys admitted to the WALT network are verified as licensed and in good standing with the 
-            Montana State Bar prior to platform access. WALT does not restrict, direct, or otherwise influence 
-            the independent professional judgment of attorneys in the network.
           </p>
         </div>
       </div>
@@ -2496,6 +2603,77 @@ export default function App() {
     }
   };
 
+  // ── ADMIN: APPROVE ATTORNEY ───────────────────────────────
+  const handleApproveAttorney = async (attorneyEmail, tier) => {
+    try {
+      const res = await fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "approve-attorney", email: attorneyEmail, tier, callerEmail: currentUser.email })
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error || "Approval failed."); return; }
+      // Refresh signups list
+      await loadSignups(currentUser.email);
+    } catch (e) {
+      console.error("Approve error:", e);
+      alert("Approval failed. Please try again.");
+    }
+  };
+
+  // ── ADMIN: DENY ATTORNEY ──────────────────────────────────
+  const handleDenyAttorney = async (attorneyEmail) => {
+    if (!window.confirm("Deny this application? The account will be marked as denied.")) return;
+    try {
+      const res = await fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "deny-attorney", email: attorneyEmail, callerEmail: currentUser.email })
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error || "Action failed."); return; }
+      await loadSignups(currentUser.email);
+    } catch (e) {
+      console.error("Deny error:", e);
+      alert("Action failed. Please try again.");
+    }
+  };
+
+  // ── ADMIN: DELETE ACCOUNT ─────────────────────────────────
+  const handleDeleteAccount = async (accountEmail) => {
+    if (!window.confirm(`Permanently delete the account for ${accountEmail}? This cannot be undone.`)) return;
+    try {
+      const res = await fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "delete-account", email: accountEmail, callerEmail: currentUser.email })
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error || "Delete failed."); return; }
+      await loadSignups(currentUser.email);
+    } catch (e) {
+      console.error("Delete error:", e);
+      alert("Delete failed. Please try again.");
+    }
+  };
+
+  // ── ADMIN: CHANGE TIER ────────────────────────────────────
+  const handleChangeTier = async (attorneyEmail, newTier) => {
+    try {
+      const res = await fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "set-tier", email: attorneyEmail, tier: newTier, callerEmail: currentUser.email })
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error || "Tier change failed."); return; }
+      await loadSignups(currentUser.email);
+    } catch (e) {
+      console.error("Tier change error:", e);
+      alert("Tier change failed. Please try again.");
+    }
+  };
+
   // Close portal dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -2539,6 +2717,12 @@ export default function App() {
       });
       const data = await res.json();
       if (!res.ok) {
+        // Check for pending status specifically
+        if (data.status === "pending") {
+          setShowLoginModal(false);
+          setPage("attorney-pending");
+          return;
+        }
         alert(data.error || "Login failed. Please try again.");
         return;
       }
@@ -2616,9 +2800,8 @@ export default function App() {
         alert(data.error || "Registration failed. Please try again.");
         return;
       }
-      setCurrentUser(data.user);
-      alert(`Welcome to WALT, ${attorneyData.name}! Your Gold tier account has been created.`);
-      setPage("dashboard");
+      // Do NOT log the attorney in — their account is pending approval
+      setPage("attorney-pending");
     } catch (e) {
       console.error("Attorney signup error:", e);
       alert("Registration failed. Please try again.");
@@ -2942,9 +3125,6 @@ Respond ONLY with a JSON object (no markdown, no explanation):
           <p style={{ marginTop: "20px", fontSize: "0.85rem", color: "var(--muted)" }}>
             Already have an account? <span style={{ color: "var(--gold)", cursor: "pointer", textDecoration: "underline" }} onClick={() => handleNavClick("login-client")}>Sign in</span>
           </p>
-          <div className="disclaimer" style={{ maxWidth: "680px", margin: "32px auto 0", textAlign: "left" }}>
-            <strong>Important Disclaimer:</strong> WALT is a legal marketplace platform and does <strong>not</strong> provide legal advice. No attorney-client relationship is formed through use of this service. WALT is limited to <strong>Montana jurisdiction only</strong>. Always consult a licensed Montana attorney for guidance specific to your situation.
-          </div>
         </div>
       )}
 
@@ -2968,6 +3148,25 @@ Respond ONLY with a JSON object (no markdown, no explanation):
           onComplete={handleAttorneySignup}
           onBack={() => setPage("landing")}
         />
+      )}
+
+      {page === "attorney-pending" && (
+        <div className="summary-page" style={{ textAlign: "center", paddingTop: "60px" }}>
+          <div style={{ maxWidth: "560px", margin: "0 auto" }}>
+            <div style={{ fontSize: "2.5rem", marginBottom: "20px", color: "var(--gold)" }}>⏳</div>
+            <h2 style={{ marginBottom: "12px" }}>Application Received</h2>
+            <p style={{ fontSize: "0.95rem", color: "var(--charcoal)", lineHeight: "1.8", marginBottom: "32px" }}>
+              Thank you for applying to join the WALT attorney network. Your application is under review. 
+              You'll be able to log in and access the platform once your account has been approved.
+            </p>
+            <p style={{ fontSize: "0.85rem", color: "var(--muted)", marginBottom: "32px" }}>
+              If you have questions, contact us at <strong>partners@walt.legal</strong>.
+            </p>
+            <button className="btn btn-secondary" onClick={() => setPage("landing")}>
+              Return to Home
+            </button>
+          </div>
+        </div>
       )}
 
       {page === "create-account-prompt" && caseData && (
@@ -3015,6 +3214,10 @@ Respond ONLY with a JSON object (no markdown, no explanation):
           currentAttorney={currentUser}
           onBidSubmit={handleBidSubmit}
           signups={signups}
+          onApproveAttorney={handleApproveAttorney}
+          onDenyAttorney={handleDenyAttorney}
+          onDeleteAccount={handleDeleteAccount}
+          onChangeTier={handleChangeTier}
         />
       )}
 
