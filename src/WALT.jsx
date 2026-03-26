@@ -1697,6 +1697,67 @@ function AboutPage() {
           </p>
         </div>
       </div>
+
+      <div className="about-block">
+        <h3>Ethics &amp; Compliance</h3>
+        <p>
+          WALT is designed from the ground up to operate in full compliance with both the ABA Model Rules of Professional 
+          Conduct and the Montana Rules of Professional Conduct. Our subscription-based revenue model and operational 
+          structure reflect a deliberate commitment to legal ethics — not as an afterthought, but as a core design principle.
+        </p>
+
+        <div style={{ marginTop: "20px" }}>
+          <h4 style={{ fontSize: "0.95rem", color: "var(--navy)", marginBottom: "8px", fontWeight: 600 }}>
+            Rule 5.4 — Independence of the Legal Profession
+          </h4>
+          <p style={{ fontSize: "0.85rem", color: "var(--charcoal)", lineHeight: "1.7" }}>
+            Both ABA Model Rule 5.4 and Montana Rule 5.4 prohibit attorneys from sharing legal fees with 
+            non-lawyers. WALT's business model is structured entirely around flat-rate attorney subscriptions — 
+            we never take a percentage of case fees, referral fees, or contingency cuts. Attorneys pay a fixed 
+            monthly subscription for access to pre-qualified leads, and all compensation flows directly between 
+            client and attorney. This structure ensures complete attorney independence and full Rule 5.4 compliance.
+          </p>
+        </div>
+
+        <div style={{ marginTop: "20px" }}>
+          <h4 style={{ fontSize: "0.95rem", color: "var(--navy)", marginBottom: "8px", fontWeight: 600 }}>
+            Rule 7.2 — Communications Concerning Services
+          </h4>
+          <p style={{ fontSize: "0.85rem", color: "var(--charcoal)", lineHeight: "1.7" }}>
+            Montana Rule 7.2 permits attorneys to pay for advertising and referral services, provided the 
+            arrangement does not involve fee-splitting or compromise independent professional judgment. WALT 
+            operates as a permitted advertising and lead-generation platform — attorneys pay for access to 
+            the marketplace, not per referral or case outcome. This is consistent with the Montana Supreme 
+            Court's recognition that subscription-based legal marketing services are permissible under the 
+            Rules of Professional Conduct.
+          </p>
+        </div>
+
+        <div style={{ marginTop: "20px" }}>
+          <h4 style={{ fontSize: "0.95rem", color: "var(--navy)", marginBottom: "8px", fontWeight: 600 }}>
+            Unauthorized Practice of Law
+          </h4>
+          <p style={{ fontSize: "0.85rem", color: "var(--charcoal)", lineHeight: "1.7" }}>
+            WALT's AI-powered intake tool gathers and organizes information from clients — it does not analyze 
+            legal claims, advise clients on strategy, or predict legal outcomes. The platform functions as an 
+            intake and routing mechanism, not a legal advisor. All substantive legal advice is provided exclusively 
+            by licensed Montana attorneys. Our self-service document tools assist users in preparing procedural 
+            forms they are entitled to prepare themselves as pro se litigants, consistent with Montana's 
+            recognition of self-represented parties' rights.
+          </p>
+        </div>
+
+        <div style={{ marginTop: "20px" }}>
+          <h4 style={{ fontSize: "0.95rem", color: "var(--navy)", marginBottom: "8px", fontWeight: 600 }}>
+            Attorney Verification
+          </h4>
+          <p style={{ fontSize: "0.85rem", color: "var(--charcoal)", lineHeight: "1.7" }}>
+            All attorneys admitted to the WALT network are verified as licensed and in good standing with the 
+            Montana State Bar prior to platform access. WALT does not restrict, direct, or otherwise influence 
+            the independent professional judgment of attorneys in the network.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -2852,7 +2913,7 @@ Respond ONLY with a JSON object (no markdown, no explanation):
                     Client Login
                   </div>
                   <div className="portal-dropdown-item" onClick={() => handleNavClick("login-attorney")}>
-                    Attorney Partners
+                    Attorney Login
                   </div>
                   <div className="portal-dropdown-item" onClick={() => handleNavClick("attorney-signup")}>
                     Attorney Signup
@@ -2881,6 +2942,9 @@ Respond ONLY with a JSON object (no markdown, no explanation):
           <p style={{ marginTop: "20px", fontSize: "0.85rem", color: "var(--muted)" }}>
             Already have an account? <span style={{ color: "var(--gold)", cursor: "pointer", textDecoration: "underline" }} onClick={() => handleNavClick("login-client")}>Sign in</span>
           </p>
+          <div className="disclaimer" style={{ maxWidth: "680px", margin: "32px auto 0", textAlign: "left" }}>
+            <strong>Important Disclaimer:</strong> WALT is a legal marketplace platform and does <strong>not</strong> provide legal advice. No attorney-client relationship is formed through use of this service. WALT is limited to <strong>Montana jurisdiction only</strong>. Always consult a licensed Montana attorney for guidance specific to your situation.
+          </div>
         </div>
       )}
 
@@ -2981,7 +3045,7 @@ Respond ONLY with a JSON object (no markdown, no explanation):
         <div className="modal-overlay" onClick={() => setShowLoginModal(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setShowLoginModal(false)}>×</button>
-            <h3>{loginType === "attorney" ? "Attorney Partner Login" : "Client Login"}</h3>
+            <h3>{loginType === "attorney" ? "Attorney Login" : "Client Login"}</h3>
             <p>
               {loginType === "attorney" 
                 ? "Access the WALT attorney partner dashboard to view cases and submit bids."
@@ -3028,9 +3092,6 @@ Respond ONLY with a JSON object (no markdown, no explanation):
               </div>
               {loginType === "attorney" && (
                 <>
-                  <p style={{ fontSize: "0.7rem", color: "var(--muted)", textAlign: "center", marginTop: "12px" }}>
-                    Demo: <code>m.holloway</code> / <code>walt2025</code> &nbsp;|&nbsp; <code>j.davies</code> / <code>walt2025</code> &nbsp;|&nbsp; <code>l.zagar</code> / <code>walt2025</code>
-                  </p>
                   <p style={{ fontSize: "0.75rem", color: "var(--muted)", textAlign: "center", marginTop: "8px" }}>
                     Not registered? <span style={{ color: "var(--gold)", cursor: "pointer", textDecoration: "underline" }} onClick={() => { setShowLoginModal(false); setPage("attorney-signup"); }}>Sign up as an attorney</span>
                   </p>
