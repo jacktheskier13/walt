@@ -2010,7 +2010,7 @@ function AboutPage() {
       }}>
         <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase", color: "var(--navy)", background: "rgba(30,58,95,0.12)", padding: "4px 10px", borderRadius: "6px", flexShrink: 0, whiteSpace: "nowrap" }}>Demo</div>
         <div>
-          <div style={{ fontWeight: 700, color: "var(--navy)", fontSize: "0.9rem", marginBottom: "8px", fontFamily: "'Cormorant Garamond', serif", fontSize: "1.05rem" }}>
+          <div style={{ fontWeight: 700, color: "var(--navy)", fontSize: "1.05rem", marginBottom: "8px", fontFamily: "'Cormorant Garamond', serif" }}>
             WALT is Currently in Demo Mode
           </div>
           <p style={{ fontSize: "0.84rem", color: "var(--charcoal)", lineHeight: "1.75", margin: 0 }}>
