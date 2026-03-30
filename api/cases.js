@@ -66,6 +66,33 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
+    // ── GET MESSAGES FOR MULTIPLE CASES ───────────────────────
+    if (action === "get-messages") {
+      const { caseIds } = req.body;
+      if (!caseIds || !Array.isArray(caseIds)) {
+        return res.status(400).json({ error: "caseIds array required" });
+      }
+      const messages = {};
+      for (const caseId of caseIds) {
+        const thread = await kv.get(`messages:${caseId}`);
+        if (thread) messages[caseId] = thread;
+      }
+      return res.status(200).json({ messages });
+    }
+
+    // ── SEND MESSAGE (append to case thread) ──────────────────
+    if (action === "send-message") {
+      const { caseId, message } = req.body;
+      if (!caseId || !message) {
+        return res.status(400).json({ error: "caseId and message required" });
+      }
+      const key = `messages:${caseId}`;
+      const thread = (await kv.get(key)) || [];
+      thread.push({ ...message, ts: message.ts || new Date().toISOString() });
+      await kv.set(key, thread);
+      return res.status(200).json({ success: true });
+    }
+
     return res.status(400).json({ error: "Unknown action" });
 
   } catch (err) {

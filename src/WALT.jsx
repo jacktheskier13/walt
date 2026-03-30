@@ -239,6 +239,62 @@ const STYLES = `
   .disclaimer { background:#FFF8F0; border:1px solid #F0D5B8; border-radius:var(--radius); padding:14px 20px; margin-bottom:24px; font-size:0.8rem; color:var(--navy); line-height:1.5; }
   .disclaimer strong { color:var(--gold); }
 
+  /* ─ CLIENT DASHBOARD TABS ─ */
+  .portal-tabs { display:flex; gap:0; border-bottom:1px solid var(--sand); margin-bottom:24px; }
+  .portal-tab { padding:10px 20px; font-size:0.83rem; font-weight:600; color:var(--muted); background:transparent; border:none; border-bottom:2px solid transparent; cursor:pointer; font-family:inherit; transition:all 0.15s; }
+  .portal-tab.active { color:var(--navy); border-bottom-color:var(--navy); }
+  .portal-tab-count { display:inline-block; background:var(--sand); color:var(--charcoal); font-size:0.68rem; font-weight:700; border-radius:50px; padding:1px 7px; margin-left:6px; }
+  .portal-tab.active .portal-tab-count { background:var(--navy); color:#fff; }
+
+  /* ─ CASE TIMELINE ─ */
+  .case-timeline { display:flex; align-items:flex-start; gap:0; margin-bottom:16px; }
+  .timeline-step { display:flex; flex-direction:column; align-items:center; flex:1; position:relative; }
+  .timeline-step:not(:last-child)::after { content:''; position:absolute; top:11px; left:50%; width:100%; height:2px; background:var(--sand); z-index:0; }
+  .timeline-step.done:not(:last-child)::after { background:var(--success); }
+  .timeline-dot { width:22px; height:22px; border-radius:50%; border:2px solid var(--sand); background:#fff; z-index:1; display:flex; align-items:center; justify-content:center; font-size:0.6rem; font-weight:700; color:var(--muted); }
+  .timeline-step.done .timeline-dot { background:var(--success); border-color:var(--success); color:#fff; }
+  .timeline-step.current .timeline-dot { background:var(--navy); border-color:var(--navy); color:#fff; }
+  .timeline-label { font-size:0.62rem; color:var(--muted); margin-top:5px; text-align:center; font-weight:500; white-space:nowrap; }
+  .timeline-step.done .timeline-label { color:var(--success); }
+  .timeline-step.current .timeline-label { color:var(--navy); font-weight:700; }
+
+  /* ─ MESSAGE THREAD ─ */
+  .msg-thread { background:var(--cream); border-radius:10px; padding:16px; margin-top:12px; }
+  .msg-thread-header { font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:12px; }
+  .msg-bubble-wrap { display:flex; flex-direction:column; gap:10px; max-height:240px; overflow-y:auto; margin-bottom:12px; }
+  .msg-bubble { max-width:80%; padding:10px 14px; border-radius:12px; font-size:0.83rem; line-height:1.6; }
+  .msg-bubble.client { align-self:flex-end; background:var(--navy); color:#fff; border-radius:12px 12px 2px 12px; }
+  .msg-bubble.attorney { align-self:flex-start; background:#fff; border:1px solid var(--sand); color:var(--charcoal); border-radius:12px 12px 12px 2px; }
+  .msg-bubble-meta { font-size:0.68rem; color:var(--muted); margin-top:3px; }
+  .msg-bubble.client .msg-bubble-meta { text-align:right; color:rgba(255,255,255,0.6); }
+  .msg-input-row { display:flex; gap:8px; }
+  .msg-input-row input { flex:1; padding:9px 14px; border:1.5px solid var(--sand); border-radius:50px; font-family:inherit; font-size:0.85rem; outline:none; }
+  .msg-input-row input:focus { border-color:var(--navy); }
+  .msg-send-btn { padding:9px 18px; background:var(--navy); color:#fff; border:none; border-radius:50px; font-size:0.82rem; font-weight:500; cursor:pointer; font-family:inherit; }
+
+  /* ─ ATTORNEY PROFILE ─ */
+  .profile-page { max-width:700px; margin:40px auto; padding:0 24px; }
+  .profile-header { background:var(--navy); border-radius:14px 14px 0 0; padding:32px 36px; color:#fff; }
+  .profile-name { font-size:1.8rem; font-weight:600; font-family:'Cormorant Garamond',serif; margin-bottom:4px; }
+  .profile-firm { font-size:0.9rem; color:rgba(255,255,255,0.7); margin-bottom:16px; }
+  .profile-badges { display:flex; gap:8px; flex-wrap:wrap; }
+  .profile-badge { font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; padding:3px 10px; border-radius:50px; border:1px solid rgba(255,255,255,0.3); color:rgba(255,255,255,0.85); }
+  .profile-badge.gold { background:rgba(197,165,114,0.25); border-color:var(--gold); color:var(--gold); }
+  .profile-body { background:#fff; border:1px solid var(--sand); border-top:none; border-radius:0 0 14px 14px; padding:28px 36px; }
+  .profile-stat-row { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px; }
+  .profile-stat { text-align:center; padding:16px 12px; background:var(--cream); border-radius:10px; }
+  .profile-stat-val { font-size:1.4rem; font-family:'Cormorant Garamond',serif; font-weight:600; color:var(--navy); }
+  .profile-stat-lbl { font-size:0.68rem; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-top:2px; }
+  .profile-section { margin-bottom:20px; }
+  .profile-section h4 { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:var(--gold); margin-bottom:8px; border-bottom:1px solid var(--sand); padding-bottom:6px; }
+  .profile-section p { font-size:0.87rem; color:var(--charcoal); line-height:1.75; }
+  .profile-areas { display:flex; flex-wrap:wrap; gap:6px; }
+  .profile-area-tag { font-size:0.75rem; padding:4px 12px; border-radius:50px; background:var(--cream); border:1px solid var(--sand); color:var(--charcoal); }
+
+  /* ─ EDIT PROFILE ─ */
+  .edit-profile-panel { background:#fff; border:1px solid var(--sand); border-radius:12px; padding:24px; margin-bottom:24px; box-shadow:var(--shadow); }
+  .edit-profile-panel h3 { font-size:1.1rem; color:var(--navy); margin-bottom:16px; padding-bottom:10px; border-bottom:1px solid var(--sand); }
+
   /* ─ FREE TIER BANNER ─ */
   .free-tier-banner { background:linear-gradient(135deg,rgba(197,165,114,0.12),rgba(197,165,114,0.06)); border:1.5px solid rgba(197,165,114,0.4); border-radius:12px; padding:16px 24px; margin-bottom:28px; display:flex; align-items:center; gap:14px; }
   .free-tier-banner-icon { font-size:1.5rem; flex-shrink:0; }
@@ -811,13 +867,35 @@ function AttorneySignup({ onComplete, onBack }) {
 }
 
 // ─── CLIENT PORTAL ──────────────────────────────────────────
-function ClientPortal({ clientData, cases, onLogout, onStartNewClaim, savedDocuments, onSelectAttorney }) {
+function ClientPortal({ clientData, cases, onLogout, onStartNewClaim, savedDocuments, onSelectAttorney, onViewProfile }) {
+  const [activeTab, setActiveTab] = useState("active");
   const [showSelectionModal, setShowSelectionModal] = useState(false);
   const [selectedBid, setSelectedBid] = useState(null);
   const [selectedCaseId, setSelectedCaseId] = useState(null);
-  
+  const [messages, setMessages] = useState({}); // { caseId: [{sender,text,ts}] }
+  const [msgInputs, setMsgInputs] = useState({}); // { caseId: string }
+  const msgsFetched = useRef(false); // prevent double-fetch in strict mode
+
   const clientCases = cases.filter(c => c.clientEmail === clientData.email);
   const clientDocs = savedDocuments?.filter(d => d.clientEmail === clientData.email) || [];
+  const activeCases = clientCases.filter(c => !c.selectedAttorney);
+  const closedCases = clientCases.filter(c => c.selectedAttorney);
+
+  // ── Load persisted messages from KV once on mount ─────────
+  useEffect(() => {
+    if (msgsFetched.current) return;
+    msgsFetched.current = true;
+    const caseIds = cases.filter(c => c.clientEmail === clientData.email).map(c => c.id);
+    if (caseIds.length === 0) return;
+    fetch("/api/cases", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "get-messages", caseIds })
+    })
+      .then(r => r.json())
+      .then(data => { if (data.messages) setMessages(data.messages); })
+      .catch(e => console.error("Failed to load messages:", e));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDownloadDocument = (doc) => {
     const blob = new Blob([doc.documentText], { type: "text/plain;charset=utf-8" });
@@ -840,6 +918,168 @@ function ClientPortal({ clientData, cases, onLogout, onStartNewClaim, savedDocum
     setShowSelectionModal(false);
     setSelectedBid(null);
     setSelectedCaseId(null);
+    setActiveTab("closed");
+  };
+
+  const sendMessage = async (caseId) => {
+    const text = (msgInputs[caseId] || "").trim();
+    if (!text) return;
+    const newMsg = { sender: "client", text, ts: new Date().toISOString() };
+
+    // Optimistic local update
+    setMessages(prev => ({
+      ...prev,
+      [caseId]: [...(prev[caseId] || []), newMsg]
+    }));
+    setMsgInputs(prev => ({ ...prev, [caseId]: "" }));
+
+    // Persist to KV
+    try {
+      await fetch("/api/cases", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "send-message", caseId, message: newMsg })
+      });
+    } catch (e) {
+      console.error("Failed to persist message:", e);
+    }
+  };
+
+  // Case timeline helper
+  const getTimelineSteps = (c) => {
+    const hasBids = c.bids?.length > 0;
+    const hasSelection = !!c.selectedAttorney;
+    return [
+      { label: "Submitted", done: true, current: false },
+      { label: "Awaiting Bids", done: hasBids || hasSelection, current: !hasBids && !hasSelection },
+      { label: "Bids Received", done: hasSelection, current: hasBids && !hasSelection },
+      { label: "Attorney Selected", done: hasSelection, current: false },
+    ];
+  };
+
+  const renderCaseCard = (c) => {
+    const hasBids = c.bids && c.bids.length > 0;
+    const hasSelection = !!c.selectedAttorney;
+    const steps = getTimelineSteps(c);
+
+    return (
+      <div className="case-card" key={c.id}>
+        <div className="case-header">
+          <div className="case-id">Case {c.id}</div>
+          <div style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
+            {new Date(c.submittedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+          </div>
+        </div>
+
+        {/* Timeline */}
+        <div className="case-timeline">
+          {steps.map((s, i) => (
+            <div key={i} className={`timeline-step ${s.done ? "done" : ""} ${s.current ? "current" : ""}`}>
+              <div className="timeline-dot">{s.done ? "✓" : i + 1}</div>
+              <div className="timeline-label">{s.label}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="case-summary">
+          <strong>{c.category}</strong> · {c.county} County
+          <br /><br />
+          {c.summary}
+        </div>
+
+        {/* Attorney selected — contact info + messaging */}
+        {hasSelection && (
+          <div style={{ background: "#E8F5E9", border: "1px solid #4CAF50", borderRadius: "8px", padding: "16px", marginTop: "16px" }}>
+            <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "#2E7D32", marginBottom: "8px" }}>
+              Attorney Selected
+            </div>
+            <div style={{ fontSize: "0.82rem", color: "var(--charcoal)", marginBottom: "10px" }}>
+              <strong>{c.selectedAttorney.attorney}</strong> · {c.selectedAttorney.firm}<br />
+              Phone: {c.selectedAttorney.phone} · Email: {c.selectedAttorney.email}
+            </div>
+            <button
+              onClick={() => onViewProfile(c.selectedAttorney.email)}
+              style={{ fontSize: "0.75rem", color: "var(--navy)", background: "transparent", border: "1px solid rgba(30,58,95,0.3)", borderRadius: "50px", padding: "4px 12px", cursor: "pointer", fontFamily: "inherit", marginBottom: "12px" }}
+            >
+              View Attorney Profile
+            </button>
+            {/* Message thread */}
+            <div className="msg-thread">
+              <div className="msg-thread-header">Messages with {c.selectedAttorney.attorney.split(" ")[0]}</div>
+              <div className="msg-bubble-wrap">
+                {(messages[c.id] || []).length === 0 && (
+                  <div style={{ fontSize: "0.78rem", color: "var(--muted)", fontStyle: "italic", textAlign: "center", padding: "12px 0" }}>
+                    No messages yet. Say hello!
+                  </div>
+                )}
+                {(messages[c.id] || []).map((m, i) => (
+                  <div key={i}>
+                    <div className={`msg-bubble ${m.sender}`}>{m.text}</div>
+                    <div className="msg-bubble-meta">
+                      {m.sender === "client" ? "You" : c.selectedAttorney.attorney.split(" ")[0]} · {new Date(m.ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="msg-input-row">
+                <input
+                  type="text"
+                  placeholder="Send a message..."
+                  value={msgInputs[c.id] || ""}
+                  onChange={e => setMsgInputs(prev => ({ ...prev, [c.id]: e.target.value }))}
+                  onKeyPress={e => e.key === "Enter" && sendMessage(c.id)}
+                />
+                <button className="msg-send-btn" onClick={() => sendMessage(c.id)}>Send</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Bids list */}
+        {hasBids && !hasSelection && (
+          <div className="bid-section">
+            <h4 style={{ fontSize: "0.85rem", color: "var(--navy)", marginBottom: "12px" }}>
+              Attorney Bids ({c.bids.length})
+            </h4>
+            <div className="bids-list">
+              {c.bids.map((bid, i) => (
+                <div className="bid-item" key={i}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                    <div className="bid-attorney">{bid.attorney} · {bid.firm}</div>
+                    <button
+                      onClick={() => onViewProfile(bid.email)}
+                      style={{ fontSize: "0.72rem", color: "var(--navy)", background: "transparent", border: "1px solid rgba(30,58,95,0.25)", borderRadius: "50px", padding: "3px 10px", cursor: "pointer", fontFamily: "inherit", flexShrink: 0, marginLeft: "8px" }}
+                    >
+                      View Profile
+                    </button>
+                  </div>
+                  <div className="bid-details">
+                    <strong>Rate:</strong> {bid.rate}<br />
+                    <strong>Timeline:</strong> {bid.timeline}<br />
+                    <strong>Message:</strong> {bid.pitch}
+                  </div>
+                  <div style={{ marginTop: "8px" }}>
+                    <button
+                      className="btn btn-primary"
+                      style={{ fontSize: "0.8rem", padding: "6px 16px" }}
+                      onClick={() => handleSelectClick(c.id, bid)}
+                    >
+                      Select This Attorney
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {!hasBids && !hasSelection && (
+          <div style={{ fontSize: "0.82rem", color: "var(--muted)", marginTop: "12px", fontStyle: "italic" }}>
+            Your case has been sent to our attorney network. You'll be notified when bids come in.
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -855,125 +1095,67 @@ function ClientPortal({ clientData, cases, onLogout, onStartNewClaim, savedDocum
         </div>
       </div>
 
-      {/* Saved Documents Section */}
-      {clientDocs.length > 0 && (
-        <div style={{ marginBottom: "32px" }}>
-          <h3 style={{ fontSize: "1.3rem", color: "var(--walnut)", marginBottom: "12px" }}>My Documents</h3>
-          <div className="case-grid">
-            {clientDocs.map((doc, i) => (
-              <div className="case-card" key={i}>
-                <div className="case-header">
-                  <div className="case-id">{doc.type}</div>
-                  <div className="case-status status-open">Ready</div>
-                </div>
-                <div className="case-summary">
-                  <strong>Case:</strong> {doc.caseNumber}<br />
-                  <strong>Plaintiff:</strong> {doc.plaintiff}<br />
-                  <strong>Created:</strong> {new Date(doc.createdAt).toLocaleDateString()}
-                </div>
-                <div style={{ marginTop: "12px" }}>
-                  <button className="btn btn-primary" style={{ fontSize: "0.82rem", padding: "8px 20px" }} onClick={() => handleDownloadDocument(doc)}>
-                    Download Document
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+      {/* Tab bar */}
+      <div className="portal-tabs">
+        <button className={`portal-tab ${activeTab === "active" ? "active" : ""}`} onClick={() => setActiveTab("active")}>
+          Active Cases <span className="portal-tab-count">{activeCases.length}</span>
+        </button>
+        <button className={`portal-tab ${activeTab === "closed" ? "active" : ""}`} onClick={() => setActiveTab("closed")}>
+          Closed Cases <span className="portal-tab-count">{closedCases.length}</span>
+        </button>
+        {clientDocs.length > 0 && (
+          <button className={`portal-tab ${activeTab === "docs" ? "active" : ""}`} onClick={() => setActiveTab("docs")}>
+            Documents <span className="portal-tab-count">{clientDocs.length}</span>
+          </button>
+        )}
+      </div>
+
+      {/* Active cases */}
+      {activeTab === "active" && (
+        <div className="case-grid">
+          {activeCases.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--muted)" }}>
+              <p style={{ marginBottom: "16px" }}>No active cases.</p>
+              <button className="btn btn-primary" onClick={onStartNewClaim}>Start Your First Claim</button>
+            </div>
+          ) : activeCases.map(renderCaseCard)}
         </div>
       )}
 
-      {/* Cases Section */}
-      <h3 style={{ fontSize: "1.3rem", color: "var(--walnut)", marginBottom: "12px" }}>My Cases</h3>
-      <div className="case-grid">
-        {clientCases.length === 0 && (
-          <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--muted)" }}>
-            <p style={{ marginBottom: "16px" }}>No cases yet.</p>
-            <button className="btn btn-primary" onClick={onStartNewClaim}>
-              Start Your First Claim
-            </button>
-          </div>
-        )}
-
-        {clientCases.map(c => {
-          const hasBids = c.bids && c.bids.length > 0;
-          const hasSelection = c.selectedAttorney;
-          const status = hasSelection ? "closed" : (hasBids ? "bidding" : "pending");
-
-          return (
-            <div className="case-card" key={c.id}>
-              <div className="case-header">
-                <div className="case-id">Case {c.id}</div>
-                <div className={`case-status status-${status}`}>
-                  {hasSelection ? "Attorney Selected" : (status === "pending" ? "Pending - Awaiting Bids" : `${c.bids.length} Bid${c.bids.length > 1 ? "s" : ""} Received`)}
-                </div>
-              </div>
-
-              <div className="case-summary">
-                <strong>{c.category}</strong> • {c.county} County
-                <br /><br />
-                {c.summary}
-              </div>
-
-              {hasSelection && (
-                <div style={{ 
-                  background: "#E8F5E9", 
-                  border: "1px solid #4CAF50", 
-                  borderRadius: "8px", 
-                  padding: "16px", 
-                  marginTop: "16px" 
-                }}>
-                  <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "#2E7D32", marginBottom: "8px" }}>
-                    ✓ Attorney Selected
-                  </div>
-                  <div style={{ fontSize: "0.82rem", color: "var(--charcoal)" }}>
-                    <strong>{c.selectedAttorney.attorney}</strong> • {c.selectedAttorney.firm}<br />
-                    Phone: {c.selectedAttorney.phone}<br />
-                    Email: {c.selectedAttorney.email}<br />
-                    <em style={{ fontSize: "0.75rem", color: "var(--muted)", marginTop: "8px", display: "block" }}>
-                      {c.selectedAttorney.attorney.split(' ')[0]} will contact you within 24 hours to discuss next steps.
-                    </em>
-                  </div>
-                </div>
-              )}
-
-              {hasBids && !hasSelection && (
-                <div className="bid-section">
-                  <h4 style={{ fontSize: "0.85rem", color: "var(--walnut)", marginBottom: "12px" }}>
-                    Attorney Bids ({c.bids.length})
-                  </h4>
-                  <div className="bids-list">
-                    {c.bids.map((bid, i) => (
-                      <div className="bid-item" key={i}>
-                        <div className="bid-attorney">{bid.attorney} • {bid.firm}</div>
-                        <div className="bid-details">
-                          <strong>Rate:</strong> {bid.rate}<br />
-                          <strong>Timeline:</strong> {bid.timeline}<br />
-                          <strong>Message:</strong> {bid.pitch}
-                        </div>
-                        <div style={{ marginTop: "8px" }}>
-                          <button 
-                            className="btn btn-primary" 
-                            style={{ fontSize: "0.8rem", padding: "6px 16px" }}
-                            onClick={() => handleSelectClick(c.id, bid)}
-                          >
-                            Select This Attorney
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {!hasBids && !hasSelection && (
-                <div style={{ fontSize: "0.82rem", color: "var(--muted)", marginTop: "12px", fontStyle: "italic" }}>
-                  Your case has been sent to our attorney network. You'll receive an email notification when bids come in.
-                </div>
-              )}
+      {/* Closed cases */}
+      {activeTab === "closed" && (
+        <div className="case-grid">
+          {closedCases.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--muted)" }}>
+              <p>No closed cases yet.</p>
             </div>
-          );
-        })}
-      </div>
+          ) : closedCases.map(renderCaseCard)}
+        </div>
+      )}
+
+      {/* Documents */}
+      {activeTab === "docs" && (
+        <div className="case-grid">
+          {clientDocs.map((doc, i) => (
+            <div className="case-card" key={i}>
+              <div className="case-header">
+                <div className="case-id">{doc.type}</div>
+                <div className="case-status status-open">Ready</div>
+              </div>
+              <div className="case-summary">
+                <strong>Case:</strong> {doc.caseNumber}<br />
+                <strong>Plaintiff:</strong> {doc.plaintiff}<br />
+                <strong>Created:</strong> {new Date(doc.createdAt).toLocaleDateString()}
+              </div>
+              <div style={{ marginTop: "12px" }}>
+                <button className="btn btn-primary" style={{ fontSize: "0.82rem", padding: "8px 20px" }} onClick={() => handleDownloadDocument(doc)}>
+                  Download Document
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Selection Confirmation Modal */}
       {showSelectionModal && selectedBid && (
@@ -981,30 +1163,18 @@ function ClientPortal({ clientData, cases, onLogout, onStartNewClaim, savedDocum
           <div className="modal" onClick={e => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setShowSelectionModal(false)}>×</button>
             <h3>Confirm Attorney Selection</h3>
-            <p>
-              You're about to select <strong>{selectedBid.attorney}</strong> from {selectedBid.firm} to represent you.
-            </p>
-            <div style={{ 
-              background: "var(--cream)", 
-              padding: "16px", 
-              borderRadius: "8px", 
-              marginBottom: "20px",
-              fontSize: "0.85rem"
-            }}>
+            <p>You're about to select <strong>{selectedBid.attorney}</strong> from {selectedBid.firm}.</p>
+            <div style={{ background: "var(--cream)", padding: "16px", borderRadius: "8px", marginBottom: "20px", fontSize: "0.85rem" }}>
               <div style={{ marginBottom: "8px" }}><strong>Rate:</strong> {selectedBid.rate}</div>
               <div style={{ marginBottom: "8px" }}><strong>Timeline:</strong> {selectedBid.timeline}</div>
               <div><strong>Contact:</strong> {selectedBid.phone}</div>
             </div>
             <p style={{ fontSize: "0.82rem", color: "var(--muted)" }}>
-              {selectedBid.attorney.split(' ')[0]} will contact you at <strong>{clientData.phone}</strong> within 24 hours to discuss your case and next steps.
+              {selectedBid.attorney.split(" ")[0]} will contact you at <strong>{clientData.phone}</strong> within 24 hours.
             </p>
             <div style={{ textAlign: "center", marginTop: "24px", display: "flex", gap: "12px", justifyContent: "center" }}>
-              <button className="btn btn-secondary" onClick={() => setShowSelectionModal(false)}>
-                Cancel
-              </button>
-              <button className="btn btn-primary" onClick={confirmSelection}>
-                Confirm Selection
-              </button>
+              <button className="btn btn-secondary" onClick={() => setShowSelectionModal(false)}>Cancel</button>
+              <button className="btn btn-primary" onClick={confirmSelection}>Confirm Selection</button>
             </div>
           </div>
         </div>
@@ -1012,15 +1182,42 @@ function ClientPortal({ clientData, cases, onLogout, onStartNewClaim, savedDocum
     </div>
   );
 }
+  const [showSelectionModal, setShowSelectionModal] = useState(false);
+  const [selectedBid, setSelectedBid] = useState(null);
+  const [selectedCaseId, setSelectedCaseId] = useState(null);
+  
+  const clientCases = cases.filter(c => c.clientEmail === clientData.email);
+  const clientDocs = savedDocuments?.filter(d => d.clientEmail === clientData.email) || [];
+
+  const handleDownloadDocument = (doc) => {
+    const blob = new Blob([doc.documentText], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${doc.type.replace(/\s+/g, "_")}_${doc.caseNumber || "Document"}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
 // ─── ATTORNEY PARTNERS DASHBOARD ────────────────────────────
-function AttorneyDashboard({ cases, currentAttorney, onBidSubmit, signups, onApproveAttorney, onDenyAttorney, onDeleteAccount, onChangeTier }) {
+function AttorneyDashboard({ cases, currentAttorney, onBidSubmit, signups, onApproveAttorney, onDenyAttorney, onDeleteAccount, onChangeTier, onUpdateProfile }) {
   const [expandedCase, setExpandedCase] = useState(null);
   const [bidForms, setBidForms] = useState({});
   const [expandedAssessments, setExpandedAssessments] = useState({});
   const [showSignups, setShowSignups] = useState(false);
-  const [adminTab, setAdminTab] = useState("pending"); // "pending" | "approved" | "all"
-  const [approvalTiers, setApprovalTiers] = useState({}); // { email: "gold"|"silver"|"free" }
+  const [adminTab, setAdminTab] = useState("pending");
+  const [approvalTiers, setApprovalTiers] = useState({});
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [editProfile, setEditProfile] = useState({
+    bio: currentAttorney?.bio || "",
+    feeStructure: currentAttorney?.feeStructure || "",
+    approach: currentAttorney?.approach || "",
+    counties: currentAttorney?.counties || "",
+    yearsExperience: currentAttorney?.yearsExperience || "",
+    winRate: currentAttorney?.winRate || "",
+    avgCaseValue: currentAttorney?.avgCaseValue || "",
+  });
 
   const toggleAssessment = (caseId) => setExpandedAssessments(prev => ({ ...prev, [caseId]: !prev[caseId] }));
 
@@ -1146,43 +1343,125 @@ function AttorneyDashboard({ cases, currentAttorney, onBidSubmit, signups, onApp
           </p>
         </div>
         
-        {/* Tier info panel */}
-        <div style={{
-          background: isGold ? "rgba(197,165,114,0.08)" : isSilver ? "rgba(148,163,184,0.08)" : "rgba(107,127,124,0.08)",
-          border: `1px solid ${isGold ? "rgba(197,165,114,0.3)" : isSilver ? "rgba(148,163,184,0.3)" : "rgba(107,127,124,0.3)"}`,
-          borderRadius: "10px",
-          padding: "12px 18px",
-          fontSize: "0.78rem",
-          color: "var(--charcoal)",
-          maxWidth: "260px",
-          lineHeight: "1.6"
-        }}>
-          {isGold && (
-            <>
-              <div style={{ fontWeight: 600, color: "var(--gold)", marginBottom: "4px", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "1px" }}>Your Stats This Month</div>
-              Bids submitted: {currentAttorney.bidsThisMonth || 0}<br />
-              Cases won: {currentAttorney.casesWonThisMonth || 0}<br />
-              Avg. case value: {currentAttorney.avgCaseValue || "N/A"}
-            </>
-          )}
-          {isSilver && (
-            <>
-              <div style={{ fontWeight: 600, color: "#64748B", marginBottom: "4px", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "1px" }}>Your Activity</div>
-              Bids this month: {currentAttorney.bidsThisMonth || 0}<br />
-              Unlimited bids remaining<br />
-              Access: All cases
-            </>
-          )}
-          {isFree && (
-            <>
-              <div style={{ fontWeight: 600, color: "var(--sage)", marginBottom: "4px", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "1px" }}>Free Tier</div>
-              Bids used: {currentAttorney.bidsThisMonth || 0}/3<br />
-              Bids remaining: {currentAttorney.bidsRemaining || 0}<br />
-              <span style={{ fontSize: "0.7rem", color: "var(--gold)", cursor: "pointer", textDecoration: "underline" }}>Upgrade to Silver</span>
-            </>
-          )}
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems: "flex-end" }}>
+          <button
+            className="btn btn-secondary"
+            style={{ fontSize: "0.8rem", padding: "7px 16px" }}
+            onClick={() => setShowEditProfile(prev => !prev)}
+          >
+            {showEditProfile ? "Hide Profile Editor" : "Edit My Profile"}
+          </button>
+          <div style={{
+            background: isGold ? "rgba(197,165,114,0.08)" : isSilver ? "rgba(148,163,184,0.08)" : "rgba(107,127,124,0.08)",
+            border: `1px solid ${isGold ? "rgba(197,165,114,0.3)" : isSilver ? "rgba(148,163,184,0.3)" : "rgba(107,127,124,0.3)"}`,
+            borderRadius: "10px",
+            padding: "12px 18px",
+            fontSize: "0.78rem",
+            color: "var(--charcoal)",
+            maxWidth: "260px",
+            lineHeight: "1.6"
+          }}>
+            {isGold && (
+              <>
+                <div style={{ fontWeight: 600, color: "var(--gold)", marginBottom: "4px", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "1px" }}>Your Stats This Month</div>
+                Bids submitted: {currentAttorney.bidsThisMonth || 0}<br />
+                Cases won: {currentAttorney.casesWonThisMonth || 0}<br />
+                Avg. case value: {currentAttorney.avgCaseValue || "N/A"}
+              </>
+            )}
+            {isSilver && (
+              <>
+                <div style={{ fontWeight: 600, color: "#64748B", marginBottom: "4px", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "1px" }}>Your Activity</div>
+                Bids this month: {currentAttorney.bidsThisMonth || 0}<br />
+                Unlimited bids remaining<br />
+                Access: All cases
+              </>
+            )}
+            {isFree && (
+              <>
+                <div style={{ fontWeight: 600, color: "var(--sage)", marginBottom: "4px", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "1px" }}>Free Tier</div>
+                Bids used: {currentAttorney.bidsThisMonth || 0}/3<br />
+                Bids remaining: {currentAttorney.bidsRemaining || 0}<br />
+                <span style={{ fontSize: "0.7rem", color: "var(--gold)", cursor: "pointer", textDecoration: "underline" }}>Upgrade to Silver</span>
+              </>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* ── EDIT PROFILE PANEL ── */}
+      {showEditProfile && (
+        <div className="edit-profile-panel">
+          <h3>Edit Your Public Profile</h3>
+          <p style={{ fontSize: "0.82rem", color: "var(--muted)", marginBottom: "20px" }}>
+            This information is shown to clients when they view your profile from a bid or after selecting you.
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+            <div className="form-group">
+              <label>Years of Experience</label>
+              <input type="text" placeholder="e.g., 12" value={editProfile.yearsExperience}
+                onChange={e => setEditProfile(p => ({ ...p, yearsExperience: e.target.value }))} />
+            </div>
+            <div className="form-group">
+              <label>Win Rate</label>
+              <input type="text" placeholder="e.g., 78%" value={editProfile.winRate}
+                onChange={e => setEditProfile(p => ({ ...p, winRate: e.target.value }))} />
+            </div>
+            <div className="form-group">
+              <label>Average Case Value</label>
+              <input type="text" placeholder="e.g., $42,000" value={editProfile.avgCaseValue}
+                onChange={e => setEditProfile(p => ({ ...p, avgCaseValue: e.target.value }))} />
+            </div>
+            <div className="form-group">
+              <label>Counties Served</label>
+              <input type="text" placeholder="e.g., Yellowstone, Missoula, Cascade" value={editProfile.counties}
+                onChange={e => setEditProfile(p => ({ ...p, counties: e.target.value }))} />
+            </div>
+          </div>
+          <div className="form-group">
+            <label>Bio</label>
+            <textarea
+              placeholder="A brief professional bio that clients will see on your profile..."
+              value={editProfile.bio}
+              onChange={e => setEditProfile(p => ({ ...p, bio: e.target.value }))}
+              style={{ width: "100%", padding: "10px 14px", border: "1.5px solid var(--sand)", borderRadius: "8px", fontFamily: "inherit", fontSize: "0.88rem", resize: "vertical", minHeight: "100px", outline: "none" }}
+            />
+          </div>
+          <div className="form-group">
+            <label>Fee Structure</label>
+            <textarea
+              placeholder="How do you charge clients? e.g., 33% contingency for personal injury, $250/hr for hourly matters..."
+              value={editProfile.feeStructure}
+              onChange={e => setEditProfile(p => ({ ...p, feeStructure: e.target.value }))}
+              style={{ width: "100%", padding: "10px 14px", border: "1.5px solid var(--sand)", borderRadius: "8px", fontFamily: "inherit", fontSize: "0.88rem", resize: "vertical", minHeight: "80px", outline: "none" }}
+            />
+          </div>
+          <div className="form-group">
+            <label>My Approach</label>
+            <textarea
+              placeholder="Describe how you work with clients and what sets you apart..."
+              value={editProfile.approach}
+              onChange={e => setEditProfile(p => ({ ...p, approach: e.target.value }))}
+              style={{ width: "100%", padding: "10px 14px", border: "1.5px solid var(--sand)", borderRadius: "8px", fontFamily: "inherit", fontSize: "0.88rem", resize: "vertical", minHeight: "80px", outline: "none" }}
+            />
+          </div>
+          <div style={{ display: "flex", gap: "12px", marginTop: "4px" }}>
+            <button className="btn btn-secondary" onClick={() => setShowEditProfile(false)}>Cancel</button>
+            <button
+              className="btn btn-primary"
+              disabled={profileSaving}
+              onClick={async () => {
+                setProfileSaving(true);
+                await onUpdateProfile(editProfile);
+                setProfileSaving(false);
+                setShowEditProfile(false);
+              }}
+            >
+              {profileSaving ? "Saving..." : "Save Profile"}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── ADMIN PANEL (j.davies only) ── */}
       {isAdmin && (
@@ -2754,6 +3033,109 @@ function ServicesPage({ onServiceClick }) {
   );
 }
 
+// ─── ATTORNEY PROFILE PAGE ───────────────────────────────────
+function AttorneyProfile({ attorney, onBack }) {
+  if (!attorney) return null;
+  const tierLabel = attorney.tier === "gold" ? "Gold" : attorney.tier === "silver" ? "Silver" : "Free";
+
+  return (
+    <div className="profile-page">
+      <button className="btn btn-secondary" style={{ marginBottom: "20px", fontSize: "0.82rem", padding: "7px 18px" }} onClick={onBack}>
+        ← Back
+      </button>
+
+      <div className="profile-header">
+        <div className="profile-name">{attorney.name}</div>
+        <div className="profile-firm">{attorney.firm || "Solo Practice"}</div>
+        <div className="profile-badges">
+          <span className={`profile-badge ${attorney.tier === "gold" ? "gold" : ""}`}>{tierLabel} Member</span>
+          {attorney.barNumber && <span className="profile-badge">Bar #{attorney.barNumber}</span>}
+          {attorney.phone && <span className="profile-badge">{attorney.phone}</span>}
+        </div>
+      </div>
+
+      <div className="profile-body">
+        {/* Stats row — only show if data exists */}
+        {(attorney.winRate || attorney.avgCaseValue || attorney.bidsThisMonth !== undefined) && (
+          <div className="profile-stat-row">
+            {attorney.winRate && (
+              <div className="profile-stat">
+                <div className="profile-stat-val">{attorney.winRate}</div>
+                <div className="profile-stat-lbl">Win Rate</div>
+              </div>
+            )}
+            {attorney.avgCaseValue && (
+              <div className="profile-stat">
+                <div className="profile-stat-val">{attorney.avgCaseValue}</div>
+                <div className="profile-stat-lbl">Avg. Case Value</div>
+              </div>
+            )}
+            {attorney.casesWonThisMonth !== undefined && (
+              <div className="profile-stat">
+                <div className="profile-stat-val">{attorney.casesWonThisMonth}</div>
+                <div className="profile-stat-lbl">Cases Won This Month</div>
+              </div>
+            )}
+            {attorney.yearsExperience && (
+              <div className="profile-stat">
+                <div className="profile-stat-val">{attorney.yearsExperience}</div>
+                <div className="profile-stat-lbl">Years Experience</div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {attorney.bio && (
+          <div className="profile-section">
+            <h4>About</h4>
+            <p>{attorney.bio}</p>
+          </div>
+        )}
+
+        {attorney.practiceAreas?.length > 0 && (
+          <div className="profile-section">
+            <h4>Practice Areas</h4>
+            <div className="profile-areas">
+              {attorney.practiceAreas.map(a => (
+                <span key={a} className="profile-area-tag">{a}</span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {attorney.feeStructure && (
+          <div className="profile-section">
+            <h4>Fee Structure</h4>
+            <p>{attorney.feeStructure}</p>
+          </div>
+        )}
+
+        {attorney.approach && (
+          <div className="profile-section">
+            <h4>My Approach</h4>
+            <p>{attorney.approach}</p>
+          </div>
+        )}
+
+        {attorney.counties && (
+          <div className="profile-section">
+            <h4>Counties Served</h4>
+            <p>{attorney.counties}</p>
+          </div>
+        )}
+
+        <div className="profile-section">
+          <h4>Contact</h4>
+          <p>
+            {attorney.email && <><strong>Email:</strong> {attorney.email}<br /></>}
+            {attorney.phone && <><strong>Phone:</strong> {attorney.phone}</>}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── ADMIN COMMAND CENTER ────────────────────────────────────
 function AdminCommandCenter({ signups, cases, analytics, onApproveAttorney, onDenyAttorney, onDeleteAccount, onChangeTier, onRefresh }) {
   const [tab, setTab] = useState("overview");
@@ -3101,6 +3483,7 @@ export default function App() {
   const [casesLoading, setCasesLoading] = useState(false);
   const [signups, setSignups] = useState([]);
   const [analytics, setAnalytics] = useState({ clicks: [], messages: [], totalClicks: 0 });
+  const [viewingProfile, setViewingProfile] = useState(null); // attorney object to display
 
   // ── CLICK TRACKING ────────────────────────────────────────
   // Attaches a global listener on mount; fires fire-and-forget POST
@@ -3201,6 +3584,48 @@ export default function App() {
   // ── ADMIN REFRESH ─────────────────────────────────────────
   const handleAdminRefresh = async () => {
     await Promise.all([loadSignups(currentUser?.email), loadAnalytics(), loadCases()]);
+  };
+
+  // ── ATTORNEY PROFILE UPDATE ───────────────────────────────
+  const handleUpdateProfile = async (profileData) => {
+    try {
+      const res = await fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "update-profile", email: currentUser.email, profileData })
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error || "Failed to save profile."); return; }
+      // Update local currentUser so the edit panel pre-populates correctly
+      setCurrentUser(prev => ({ ...prev, ...profileData }));
+    } catch (e) {
+      console.error("Profile update error:", e);
+      alert("Failed to save profile. Please try again.");
+    }
+  };
+
+  // ── VIEW ATTORNEY PROFILE ─────────────────────────────────
+  // Looks up attorney by email from known cases/signups, then shows profile
+  const handleViewProfile = async (attorneyEmail) => {
+    // Check signups list first (admin has this; attorneys have their own data)
+    const fromSignups = signups.find(s => s.email === attorneyEmail);
+    if (fromSignups) { setViewingProfile(fromSignups); setPage("attorney-profile"); return; }
+
+    // Try fetching from the auth API
+    try {
+      const res = await fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "get-attorney-profile", email: attorneyEmail })
+      });
+      const data = await res.json();
+      if (res.ok && data.attorney) {
+        setViewingProfile(data.attorney);
+        setPage("attorney-profile");
+      }
+    } catch (e) {
+      console.error("Failed to load profile:", e);
+    }
   };
 
   // ── ADMIN: APPROVE ATTORNEY ───────────────────────────────
@@ -3846,6 +4271,7 @@ Respond ONLY with a JSON object (no markdown, no explanation):
           onDenyAttorney={handleDenyAttorney}
           onDeleteAccount={handleDeleteAccount}
           onChangeTier={handleChangeTier}
+          onUpdateProfile={handleUpdateProfile}
         />
       )}
 
@@ -3857,11 +4283,22 @@ Respond ONLY with a JSON object (no markdown, no explanation):
           onLogout={handleLogout}
           onStartNewClaim={handleStartNewClaim}
           onSelectAttorney={handleSelectAttorney}
+          onViewProfile={handleViewProfile}
         />
       )}
 
       {page === "about" && <AboutPage />}
       {page === "services" && <ServicesPage onServiceClick={handleServiceClick} />}
+
+      {page === "attorney-profile" && viewingProfile && (
+        <AttorneyProfile
+          attorney={viewingProfile}
+          onBack={() => {
+            setPage(currentUser?.type === "client" ? "client-portal" : "dashboard");
+            setViewingProfile(null);
+          }}
+        />
+      )}
 
       {page === "careers" && (
         <CareersPage

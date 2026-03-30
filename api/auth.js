@@ -545,6 +545,68 @@ export default async function handler(req, res) {
         return res.status(200).json({ success: true });
       }
 
+      // ══════════════════════════════════════════════════════
+      // UPDATE ATTORNEY PROFILE
+      // ══════════════════════════════════════════════════════
+      case "update-profile": {
+        const { email, profileData } = body;
+        if (!email) return res.status(400).json({ error: "Email required." });
+
+        const key = `attorney:${email.toLowerCase()}`;
+        const account = await kv.get(key);
+        if (!account) return res.status(404).json({ error: "Account not found." });
+
+        // Only allow updating safe profile fields — never credentials or status
+        const allowedFields = ["bio", "feeStructure", "approach", "counties", "yearsExperience", "winRate", "avgCaseValue"];
+        const safeUpdates = {};
+        for (const field of allowedFields) {
+          if (profileData[field] !== undefined) {
+            safeUpdates[field] = profileData[field];
+          }
+        }
+
+        const updated = { ...account, ...safeUpdates };
+        await kv.set(key, updated);
+        await upsertSignupSummary(updated);
+
+        return res.status(200).json({ success: true });
+      }
+
+      // ══════════════════════════════════════════════════════
+      // GET ATTORNEY PROFILE (public — for client view)
+      // ══════════════════════════════════════════════════════
+      case "get-attorney-profile": {
+        const { email } = body;
+        if (!email) return res.status(400).json({ error: "Email required." });
+
+        const account = await kv.get(`attorney:${email.toLowerCase()}`);
+        if (!account) return res.status(404).json({ error: "Attorney not found." });
+
+        // Return public-safe fields only — no password hash, no internal fields
+        const publicProfile = {
+          type: "attorney",
+          name: account.name,
+          username: account.username,
+          email: account.email,
+          phone: account.phone,
+          firm: account.firm,
+          barNumber: account.barNumber,
+          practiceAreas: account.practiceAreas,
+          tier: account.tier,
+          bio: account.bio || null,
+          feeStructure: account.feeStructure || null,
+          approach: account.approach || null,
+          counties: account.counties || null,
+          yearsExperience: account.yearsExperience || null,
+          winRate: account.winRate || null,
+          avgCaseValue: account.avgCaseValue || null,
+          casesWonThisMonth: account.casesWonThisMonth || null,
+          bidsThisMonth: account.bidsThisMonth || 0,
+        };
+
+        return res.status(200).json({ attorney: publicProfile });
+      }
+
       default:
         return res.status(400).json({ error: `Unknown action: ${action}` });
     }
