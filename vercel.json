@@ -23,6 +23,10 @@
     "api/bids.js": {
       "memory": 256,
       "maxDuration": 10
+    },
+    "api/events.js": {
+      "memory": 256,
+      "maxDuration": 10
     }
   },
   "rewrites": [
@@ -32,6 +36,7 @@
     { "source": "/api/auth", "destination": "/api/auth" },
     { "source": "/api/cases", "destination": "/api/cases" },
     { "source": "/api/bids", "destination": "/api/bids" },
+    { "source": "/api/events", "destination": "/api/events" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

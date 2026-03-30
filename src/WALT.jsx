@@ -94,7 +94,38 @@ const STYLES = `
   .nav { display:flex; align-items:center; justify-content:space-between; padding:16px 32px; background:var(--navy); border-bottom:1px solid var(--navy-hover); position:sticky; top:0; z-index:50; }
   .nav-logo { font-size:1.4rem; font-weight:700; color:#fff; cursor:pointer; letter-spacing:-0.5px; }
   .nav-logo span { color:var(--gold); }
-  .nav-links { display:flex; gap:8px; flex-wrap:wrap; position:relative; }
+
+  /* Hamburger button */
+  .nav-hamburger { display:flex; flex-direction:column; justify-content:center; gap:5px; width:36px; height:36px; background:transparent; border:1px solid rgba(255,255,255,0.3); border-radius:8px; cursor:pointer; padding:7px 8px; transition:all 0.2s; flex-shrink:0; }
+  .nav-hamburger:hover { border-color:var(--gold); background:rgba(197,165,114,0.1); }
+  .nav-hamburger span { display:block; height:2px; background:#fff; border-radius:2px; transition:all 0.25s; }
+  .nav-hamburger.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+  .nav-hamburger.open span:nth-child(2) { opacity:0; }
+  .nav-hamburger.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+
+  /* Drawer overlay */
+  .drawer-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:80; opacity:0; pointer-events:none; transition:opacity 0.25s; }
+  .drawer-overlay.open { opacity:1; pointer-events:all; }
+
+  /* Side drawer */
+  .drawer { position:fixed; top:0; right:0; height:100%; width:280px; background:var(--navy); z-index:90; transform:translateX(100%); transition:transform 0.28s cubic-bezier(0.4,0,0.2,1); display:flex; flex-direction:column; box-shadow:-4px 0 24px rgba(0,0,0,0.3); }
+  .drawer.open { transform:translateX(0); }
+  .drawer-header { display:flex; align-items:center; justify-content:space-between; padding:20px 24px 16px; border-bottom:1px solid rgba(255,255,255,0.1); }
+  .drawer-logo { font-size:1.2rem; font-weight:700; color:#fff; letter-spacing:-0.5px; }
+  .drawer-logo span { color:var(--gold); }
+  .drawer-close { background:transparent; border:none; color:rgba(255,255,255,0.6); font-size:1.4rem; cursor:pointer; padding:4px 8px; line-height:1; }
+  .drawer-close:hover { color:#fff; }
+  .drawer-body { flex:1; overflow-y:auto; padding:12px 0; }
+  .drawer-user { padding:14px 24px 10px; font-size:0.8rem; color:var(--gold); font-weight:600; text-transform:uppercase; letter-spacing:1px; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:8px; }
+  .drawer-item { display:block; width:100%; padding:13px 24px; background:transparent; border:none; color:rgba(255,255,255,0.85); font-size:0.9rem; font-weight:400; font-family:inherit; text-align:left; cursor:pointer; transition:all 0.15s; border-left:3px solid transparent; }
+  .drawer-item:hover { background:rgba(255,255,255,0.06); color:#fff; border-left-color:var(--gold); }
+  .drawer-item.active { color:#fff; background:rgba(197,165,114,0.12); border-left-color:var(--gold); font-weight:600; }
+  .drawer-item.primary { color:var(--gold); font-weight:600; }
+  .drawer-divider { height:1px; background:rgba(255,255,255,0.08); margin:8px 24px; }
+  .drawer-section-label { padding:10px 24px 4px; font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:1.4px; color:rgba(255,255,255,0.35); }
+  .drawer-footer { padding:16px 24px; border-top:1px solid rgba(255,255,255,0.1); font-size:0.72rem; color:rgba(255,255,255,0.3); }
+
+  /* Keep .nav-btn for any lingering uses but hide in logged-in state */
   .nav-btn { padding:7px 16px; border:1px solid rgba(255,255,255,0.3); border-radius:50px; background:transparent; color:#fff; font-size:0.82rem; font-weight:500; cursor:pointer; transition:all 0.2s; font-family:inherit; }
   .nav-btn:hover, .nav-btn.active { background:var(--gold); color:var(--navy); border-color:var(--gold); }
   .portal-dropdown { position:absolute; top:100%; right:0; margin-top:8px; background:#fff; border:1px solid var(--sand); border-radius:12px; box-shadow:var(--shadow-md); min-width:200px; z-index:100; }
@@ -207,6 +238,41 @@ const STYLES = `
   .about-block p { font-size:0.88rem; color:var(--charcoal); line-height:1.8; }
   .disclaimer { background:#FFF8F0; border:1px solid #F0D5B8; border-radius:var(--radius); padding:14px 20px; margin-bottom:24px; font-size:0.8rem; color:var(--navy); line-height:1.5; }
   .disclaimer strong { color:var(--gold); }
+
+  /* ─ FREE TIER BANNER ─ */
+  .free-tier-banner { background:linear-gradient(135deg,rgba(197,165,114,0.12),rgba(197,165,114,0.06)); border:1.5px solid rgba(197,165,114,0.4); border-radius:12px; padding:16px 24px; margin-bottom:28px; display:flex; align-items:center; gap:14px; }
+  .free-tier-banner-icon { font-size:1.5rem; flex-shrink:0; }
+  .free-tier-banner h4 { font-size:1rem; color:var(--navy); margin-bottom:4px; font-family:'Cormorant Garamond',serif; }
+  .free-tier-banner p { font-size:0.82rem; color:var(--charcoal); line-height:1.5; margin:0; }
+
+  /* ─ CAREERS / CONTACT ─ */
+  .static-page { max-width:780px; margin:60px auto; padding:0 24px; }
+  .static-page h2 { font-size:2rem; color:var(--navy); margin-bottom:8px; text-align:center; }
+  .static-page > p { text-align:center; color:var(--charcoal); margin-bottom:40px; font-size:0.88rem; }
+  .contact-form { background:#fff; border:1px solid var(--sand); border-radius:14px; padding:32px; }
+  .contact-form textarea { width:100%; padding:12px 14px; border:1.5px solid var(--sand); border-radius:8px; font-family:inherit; font-size:0.88rem; resize:vertical; min-height:120px; outline:none; }
+  .contact-form textarea:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(197,165,114,0.12); }
+
+  /* ─ ADMIN COMMAND CENTER ─ */
+  .admin-page { max-width:1100px; margin:40px auto; padding:0 24px; }
+  .admin-page h2 { font-size:2rem; color:var(--navy); margin-bottom:4px; }
+  .admin-kpi-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:16px; margin-bottom:32px; }
+  .admin-kpi { background:#fff; border:1px solid var(--sand); border-radius:12px; padding:20px 22px; box-shadow:var(--shadow); }
+  .admin-kpi-label { font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:var(--muted); margin-bottom:6px; }
+  .admin-kpi-value { font-size:2rem; font-family:'Cormorant Garamond',serif; font-weight:600; color:var(--navy); line-height:1; }
+  .admin-kpi-sub { font-size:0.72rem; color:var(--muted); margin-top:4px; }
+  .admin-section { background:#fff; border:1px solid var(--sand); border-radius:12px; padding:24px; margin-bottom:24px; box-shadow:var(--shadow); }
+  .admin-section h3 { font-size:1.2rem; color:var(--navy); margin-bottom:16px; padding-bottom:10px; border-bottom:1px solid var(--sand); }
+  .admin-tabs { display:flex; gap:0; margin-bottom:16px; border-bottom:1px solid var(--sand); }
+  .admin-tab { padding:8px 18px; font-size:0.78rem; font-weight:600; color:var(--muted); background:transparent; border:none; border-bottom:2px solid transparent; cursor:pointer; font-family:inherit; transition:all 0.15s; }
+  .admin-tab.active { color:var(--navy); border-bottom-color:var(--navy); }
+  .admin-msg-card { background:var(--cream); border-radius:8px; padding:14px 18px; margin-bottom:10px; font-size:0.82rem; }
+  .admin-msg-card:last-child { margin-bottom:0; }
+  .admin-msg-meta { font-size:0.72rem; color:var(--muted); margin-bottom:6px; }
+  .admin-msg-body { color:var(--charcoal); line-height:1.6; white-space:pre-wrap; }
+  .clicks-table { width:100%; border-collapse:collapse; font-size:0.8rem; }
+  .clicks-table th { padding:8px 12px; text-align:left; font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--navy); background:var(--cream); border-bottom:1px solid var(--sand); }
+  .clicks-table td { padding:8px 12px; border-bottom:1px solid var(--sand); color:var(--charcoal); }
 
   /* ─ SERVICES ─ */
   .services-page { max-width:900px; margin:60px auto; padding:0 24px; }
@@ -579,6 +645,14 @@ function AttorneySignup({ onComplete, onBack }) {
     <div className="summary-page">
       <h2>Join WALT Attorney Network</h2>
       <p>Register to access new clients and grow your Montana practice</p>
+
+      <div className="free-tier-banner">
+        <div className="free-tier-banner-icon" style={{ fontSize: "1.2rem", color: "var(--gold)", fontWeight: 700 }}>★</div>
+        <div>
+          <h4>Free Subscription — No Credit Card Required</h4>
+          <p>Every attorney who joins WALT during our launch period receives a <strong>free subscription</strong> with full access to the platform. Bid on cases, connect with clients, and grow your practice at no cost while we build Montana's legal marketplace together.</p>
+        </div>
+      </div>
 
       <div className="summary-card">
         <div className="summary-body" style={{ padding: "32px" }}>
@@ -1643,6 +1717,32 @@ function AttorneyDashboard({ cases, currentAttorney, onBidSubmit, signups, onApp
 function AboutPage() {
   return (
     <div className="about-page">
+
+      {/* ── DEMO NOTICE ── */}
+      <div style={{
+        background: "linear-gradient(135deg, rgba(30,58,95,0.06), rgba(30,58,95,0.03))",
+        border: "1.5px solid rgba(30,58,95,0.2)",
+        borderRadius: "12px",
+        padding: "20px 28px",
+        marginBottom: "24px",
+        display: "flex",
+        gap: "16px",
+        alignItems: "flex-start"
+      }}>
+        <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase", color: "var(--navy)", background: "rgba(30,58,95,0.12)", padding: "4px 10px", borderRadius: "6px", flexShrink: 0, whiteSpace: "nowrap" }}>Demo</div>
+        <div>
+          <div style={{ fontWeight: 700, color: "var(--navy)", fontSize: "0.9rem", marginBottom: "8px", fontFamily: "'Cormorant Garamond', serif", fontSize: "1.05rem" }}>
+            WALT is Currently in Demo Mode
+          </div>
+          <p style={{ fontSize: "0.84rem", color: "var(--charcoal)", lineHeight: "1.75", margin: 0 }}>
+            This is a working demonstration of the WALT platform. <strong>Any case submitted here is for testing purposes only</strong> — no real attorney-client relationships are formed and no actual legal services are provided through this demo.
+          </p>
+          <p style={{ fontSize: "0.84rem", color: "var(--charcoal)", lineHeight: "1.75", marginTop: "10px", marginBottom: 0 }}>
+            <strong>Attorneys who create an account during the demo period</strong> are doing so for informational and preview purposes. When WALT launches as a fully operating business, every attorney who signed up during the demo will automatically receive a <strong style={{ color: "var(--gold)" }}>free Gold-tier subscription</strong> — our highest access level — as a thank-you for being an early supporter.
+          </p>
+        </div>
+      </div>
+
       <div className="disclaimer">
         <strong>Important Disclaimer:</strong> WALT is a legal marketplace platform and does <strong>not</strong> provide legal advice. No attorney-client relationship is formed through use of this service. This platform is limited to <strong>Montana jurisdiction only</strong>. Always consult a licensed Montana attorney for guidance specific to your situation.
       </div>
@@ -2214,13 +2314,13 @@ Be conversational but efficient. Accept straightforward answers without unnecess
 
         <div className="entry-methods">
           <div className="entry-method" onClick={handleUploadChoice}>
-            <div className="entry-method-icon" style={{ fontSize: "2rem", color: "var(--navy)" }}>↑</div>
+            <div className="entry-method-icon" style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--navy)", letterSpacing: "0.5px" }}>Upload</div>
             <h3>Upload Document</h3>
             <p>Upload a PDF or image of your complaint and I'll automatically extract the information</p>
           </div>
 
           <div className="entry-method" onClick={handleManualChoice}>
-            <div className="entry-method-icon" style={{ fontSize: "2rem", color: "var(--navy)" }}>✎</div>
+            <div className="entry-method-icon" style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--navy)", letterSpacing: "0.5px" }}>Type</div>
             <h3>Type Information</h3>
             <p>I'll ask you questions and you can type the information from your paper complaint</p>
           </div>
@@ -2242,7 +2342,7 @@ Be conversational but efficient. Accept straightforward answers without unnecess
         <div className="summary-card">
           <div className="summary-body" style={{ padding: "40px", textAlign: "center" }}>
             <div style={{ marginBottom: "24px" }}>
-              <div style={{ fontSize: "2.5rem", marginBottom: "16px", color: "var(--navy)" }}>↑</div>
+              <div style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--navy)", marginBottom: "16px" }}>Upload</div>
               <p style={{ color: "var(--muted)", marginBottom: "24px" }}>
                 Upload a PDF or clear image of the debt collection complaint filed against you in Montana court.
               </p>
@@ -2459,6 +2559,148 @@ Be conversational but efficient. Accept straightforward answers without unnecess
   }
 }
 
+// ─── CAREERS PAGE ────────────────────────────────────────────
+function CareersPage({ onSubmit, onBack }) {
+  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!formData.name || !formData.email || !formData.message) {
+      alert("Please fill out all fields.");
+      return;
+    }
+    setLoading(true);
+    await onSubmit({ type: "career", ...formData });
+    setSubmitted(true);
+    setLoading(false);
+  };
+
+  if (submitted) {
+    return (
+      <div className="static-page" style={{ textAlign: "center", paddingTop: "40px" }}>
+        <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "var(--success)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: "1.2rem", fontWeight: 700 }}>✓</div>
+        <h2>Application Received</h2>
+        <p style={{ marginTop: "12px", marginBottom: "32px" }}>Thanks for your interest in joining the WALT team. We'll be in touch if there's a fit.</p>
+        <button className="btn btn-secondary" onClick={onBack}>Back to Home</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="static-page">
+      <h2>Join Our Team</h2>
+      <p>WALT is building Montana's legal marketplace. We're always interested in talented, mission-driven people.</p>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "16px", marginBottom: "40px" }}>
+        {[
+          { role: "Legal Operations", desc: "Help build attorney relationships and marketplace quality." },
+          { role: "Software Development", desc: "Build the platform that expands access to justice in Montana." },
+          { role: "Marketing & Outreach", desc: "Connect Montanans with legal resources they didn't know existed." },
+          { role: "Other", desc: "Have a skill that would help WALT's mission? Tell us about it." },
+        ].map(r => (
+          <div key={r.role} style={{ background: "#fff", border: "1px solid var(--sand)", borderRadius: "12px", padding: "20px" }}>
+            <div style={{ fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px", color: "var(--gold)", marginBottom: "6px" }}>{r.role}</div>
+            <p style={{ fontSize: "0.82rem", color: "var(--charcoal)", lineHeight: "1.6" }}>{r.desc}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="contact-form">
+        <h3 style={{ fontSize: "1.2rem", color: "var(--navy)", marginBottom: "20px" }}>Tell Us About Yourself</h3>
+        <div className="form-group">
+          <label>Full Name *</label>
+          <input type="text" placeholder="Your name" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+        </div>
+        <div className="form-group">
+          <label>Email Address *</label>
+          <input type="email" placeholder="your.email@example.com" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
+        </div>
+        <div className="form-group">
+          <label>Why would you be a great addition to the WALT team? *</label>
+          <textarea
+            placeholder="Tell us about your background, what draws you to WALT's mission, and what you'd bring to the team. No resume required — just be genuine."
+            value={formData.message}
+            onChange={e => setFormData({ ...formData, message: e.target.value })}
+            style={{ minHeight: "160px" }}
+          />
+        </div>
+        <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
+          <button className="btn btn-secondary" onClick={onBack}>Back</button>
+          <button className="btn btn-primary" onClick={handleSubmit} disabled={loading}>
+            {loading ? "Submitting..." : "Submit Application"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── CONTACT PAGE ─────────────────────────────────────────────
+function ContactPage({ onSubmit, onBack }) {
+  const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!formData.name || !formData.email || !formData.message) {
+      alert("Please fill out all required fields.");
+      return;
+    }
+    setLoading(true);
+    await onSubmit({ type: "contact", ...formData });
+    setSubmitted(true);
+    setLoading(false);
+  };
+
+  if (submitted) {
+    return (
+      <div className="static-page" style={{ textAlign: "center", paddingTop: "40px" }}>
+        <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "var(--success)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: "1.2rem", fontWeight: 700 }}>✓</div>
+        <h2>Message Sent</h2>
+        <p style={{ marginTop: "12px", marginBottom: "32px" }}>We've received your message and will get back to you as soon as possible.</p>
+        <button className="btn btn-secondary" onClick={onBack}>Back to Home</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="static-page">
+      <h2>Contact Us</h2>
+      <p>Questions, feedback, or just want to connect? We'd love to hear from you.</p>
+
+      <div className="contact-form">
+        <div className="form-group">
+          <label>Full Name *</label>
+          <input type="text" placeholder="Your name" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+        </div>
+        <div className="form-group">
+          <label>Email Address *</label>
+          <input type="email" placeholder="your.email@example.com" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
+        </div>
+        <div className="form-group">
+          <label>Subject</label>
+          <input type="text" placeholder="e.g., Question about the platform, Attorney inquiry..." value={formData.subject} onChange={e => setFormData({ ...formData, subject: e.target.value })} />
+        </div>
+        <div className="form-group">
+          <label>Message *</label>
+          <textarea
+            placeholder="How can we help?"
+            value={formData.message}
+            onChange={e => setFormData({ ...formData, message: e.target.value })}
+          />
+        </div>
+        <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
+          <button className="btn btn-secondary" onClick={onBack}>Back</button>
+          <button className="btn btn-primary" onClick={handleSubmit} disabled={loading}>
+            {loading ? "Sending..." : "Send Message"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── SERVICES PAGE ──────────────────────────────────────────
 function ServicesPage({ onServiceClick }) {
   const services = [
@@ -2508,6 +2750,247 @@ function ServicesPage({ onServiceClick }) {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+// ─── ADMIN COMMAND CENTER ────────────────────────────────────
+function AdminCommandCenter({ signups, cases, analytics, onApproveAttorney, onDenyAttorney, onDeleteAccount, onChangeTier, onRefresh }) {
+  const [tab, setTab] = useState("overview");
+  const [approvalTiers, setApprovalTiers] = useState({});
+  const [attyTab, setAttyTab] = useState("pending");
+
+  const attorneys = (signups || []).filter(s => s.type === "attorney");
+  const clients = (signups || []).filter(s => s.type === "client");
+  const pending = attorneys.filter(s => s.status === "pending");
+  const approved = attorneys.filter(s => s.status === "approved");
+  const denied = attorneys.filter(s => s.status === "denied");
+  const contacts = (analytics?.messages || []).filter(m => m.type === "contact");
+  const careers = (analytics?.messages || []).filter(m => m.type === "career");
+  const clicks = analytics?.clicks || [];
+  const totalBids = cases.reduce((sum, c) => sum + (c.bids?.length || 0), 0);
+
+  const tierColor = t => t === "gold" ? "var(--gold)" : t === "silver" ? "#64748B" : "var(--sage)";
+  const tierBg = t => t === "gold" ? "rgba(197,165,114,0.12)" : t === "silver" ? "rgba(148,163,184,0.12)" : "rgba(107,127,124,0.1)";
+
+  const attyRows = { pending, approved, denied }[attyTab] || [];
+
+  return (
+    <div className="admin-page">
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "24px" }}>
+        <div>
+          <h2>Command Center</h2>
+          <p style={{ fontSize: "0.88rem", color: "var(--muted)" }}>WALT platform overview — j.davies admin</p>
+        </div>
+        <button className="btn btn-secondary" style={{ fontSize: "0.8rem", padding: "8px 20px" }} onClick={onRefresh}>↻ Refresh</button>
+      </div>
+
+      {/* KPI tiles */}
+      <div className="admin-kpi-grid">
+        {[
+          { label: "Total Attorneys", value: attorneys.length, sub: `${pending.length} pending approval` },
+          { label: "Approved Attorneys", value: approved.length, sub: `${denied.length} denied` },
+          { label: "Registered Clients", value: clients.length, sub: "all time" },
+          { label: "Cases Submitted", value: cases.length, sub: "all time" },
+          { label: "Total Bids", value: totalBids, sub: "across all cases" },
+          { label: "Messages", value: contacts.length, sub: `${careers.length} career apps` },
+          { label: "Page Clicks", value: analytics?.totalClicks || 0, sub: "tracked interactions" },
+        ].map(k => (
+          <div className="admin-kpi" key={k.label}>
+            <div className="admin-kpi-label">{k.label}</div>
+            <div className="admin-kpi-value">{k.value}</div>
+            <div className="admin-kpi-sub">{k.sub}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Tab nav */}
+      <div className="admin-tabs">
+        {[
+          { key: "overview", label: "Overview" },
+          { key: "attorneys", label: `Attorneys (${attorneys.length})` },
+          { key: "clients", label: `Clients (${clients.length})` },
+          { key: "contacts", label: `Messages (${contacts.length + careers.length})` },
+          { key: "activity", label: "Activity" },
+        ].map(t => (
+          <button key={t.key} className={`admin-tab ${tab === t.key ? "active" : ""}`} onClick={() => setTab(t.key)}>{t.label}</button>
+        ))}
+      </div>
+
+      {/* OVERVIEW */}
+      {tab === "overview" && (
+        <div className="admin-section">
+          <h3>Recent Cases</h3>
+          {cases.length === 0 ? <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>No cases yet.</p> : (
+            <table className="clicks-table">
+              <thead><tr><th>Case ID</th><th>Category</th><th>County</th><th>Client</th><th>Bids</th><th>Submitted</th></tr></thead>
+              <tbody>
+                {cases.slice(0, 15).map(c => (
+                  <tr key={c.id}>
+                    <td style={{ fontWeight: 600, color: "var(--navy)", fontSize: "0.75rem" }}>{c.id}</td>
+                    <td>{c.category}</td>
+                    <td>{c.county}</td>
+                    <td>{c.clientFirstName} {c.clientLastInitial}.</td>
+                    <td>{c.bids?.length || 0}</td>
+                    <td style={{ color: "var(--muted)", fontSize: "0.75rem" }}>{new Date(c.submittedAt).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
+
+      {/* ATTORNEYS */}
+      {tab === "attorneys" && (
+        <div className="admin-section">
+          <h3>Attorney Applications</h3>
+          <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
+            {[
+              { key: "pending", label: `Pending (${pending.length})` },
+              { key: "approved", label: `Approved (${approved.length})` },
+              { key: "denied", label: `Denied (${denied.length})` },
+            ].map(t => (
+              <button key={t.key} onClick={() => setAttyTab(t.key)} style={{
+                padding: "5px 14px", fontSize: "0.75rem", fontWeight: 600,
+                border: `1.5px solid ${attyTab === t.key ? "var(--navy)" : "var(--sand)"}`,
+                borderRadius: "50px", background: attyTab === t.key ? "var(--navy)" : "transparent",
+                color: attyTab === t.key ? "#fff" : "var(--charcoal)", cursor: "pointer", fontFamily: "inherit"
+              }}>{t.label}</button>
+            ))}
+          </div>
+          {attyRows.length === 0 ? <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>No {attyTab} attorneys.</p> : (
+            <table className="clicks-table">
+              <thead><tr><th>Name</th><th>Username / Email</th><th>Bar # / Firm</th><th>Tier</th><th>Applied</th><th>Actions</th></tr></thead>
+              <tbody>
+                {attyRows.map((s, i) => (
+                  <tr key={i}>
+                    <td style={{ fontWeight: 500 }}>{s.name}</td>
+                    <td>
+                      {s.username && <div style={{ fontWeight: 600, color: "var(--navy)", fontSize: "0.78rem" }}>@{s.username}</div>}
+                      <div style={{ color: "var(--muted)", fontSize: "0.75rem" }}>{s.email}</div>
+                    </td>
+                    <td style={{ fontSize: "0.75rem" }}>
+                      <div>Bar #{s.barNumber || "—"}</div>
+                      <div style={{ color: "var(--muted)" }}>{s.firm || "Solo"}</div>
+                    </td>
+                    <td>
+                      {attyTab === "approved" ? (
+                        <select value={s.tier || "free"} onChange={e => onChangeTier(s.email, e.target.value)} style={{ padding: "3px 7px", borderRadius: "6px", border: `1.5px solid ${tierColor(s.tier || "free")}`, color: tierColor(s.tier || "free"), background: tierBg(s.tier || "free"), fontSize: "0.73rem", fontWeight: 600, fontFamily: "inherit", cursor: "pointer" }}>
+                          <option value="free">Free</option><option value="silver">Silver</option><option value="gold">Gold</option>
+                        </select>
+                      ) : attyTab === "pending" ? (
+                        <select value={approvalTiers[s.email] || "free"} onChange={e => setApprovalTiers(prev => ({ ...prev, [s.email]: e.target.value }))} style={{ padding: "3px 7px", borderRadius: "6px", border: "1.5px solid var(--sand)", fontSize: "0.73rem", fontFamily: "inherit", cursor: "pointer" }}>
+                          <option value="free">Free</option><option value="silver">Silver</option><option value="gold">Gold</option>
+                        </select>
+                      ) : <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>—</span>}
+                    </td>
+                    <td style={{ color: "var(--muted)", fontSize: "0.75rem" }}>{new Date(s.createdAt).toLocaleDateString()}</td>
+                    <td>
+                      <div style={{ display: "flex", gap: "5px" }}>
+                        {attyTab === "pending" && (
+                          <>
+                            <button onClick={() => onApproveAttorney(s.email, approvalTiers[s.email] || "free")} style={{ padding: "3px 10px", fontSize: "0.7rem", fontWeight: 600, border: "none", borderRadius: "50px", background: "var(--success)", color: "#fff", cursor: "pointer", fontFamily: "inherit" }}>Approve</button>
+                            <button onClick={() => onDenyAttorney(s.email)} style={{ padding: "3px 10px", fontSize: "0.7rem", fontWeight: 600, border: "1px solid var(--danger)", borderRadius: "50px", background: "transparent", color: "var(--danger)", cursor: "pointer", fontFamily: "inherit" }}>Deny</button>
+                          </>
+                        )}
+                        <button onClick={() => onDeleteAccount(s.email)} style={{ padding: "3px 10px", fontSize: "0.7rem", fontWeight: 600, border: "1px solid var(--sand)", borderRadius: "50px", background: "transparent", color: "var(--muted)", cursor: "pointer", fontFamily: "inherit" }}>Delete</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
+
+      {/* CLIENTS */}
+      {tab === "clients" && (
+        <div className="admin-section">
+          <h3>Registered Clients</h3>
+          {clients.length === 0 ? <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>No client accounts yet.</p> : (
+            <table className="clicks-table">
+              <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Registered</th><th>Actions</th></tr></thead>
+              <tbody>
+                {clients.map((s, i) => (
+                  <tr key={i}>
+                    <td style={{ fontWeight: 500 }}>{s.name}</td>
+                    <td style={{ color: "var(--muted)", fontSize: "0.78rem" }}>{s.email}</td>
+                    <td style={{ color: "var(--muted)", fontSize: "0.78rem" }}>{s.phone || "—"}</td>
+                    <td style={{ color: "var(--muted)", fontSize: "0.75rem" }}>{new Date(s.createdAt).toLocaleDateString()}</td>
+                    <td><button onClick={() => onDeleteAccount(s.email)} style={{ padding: "3px 10px", fontSize: "0.7rem", fontWeight: 600, border: "1px solid var(--sand)", borderRadius: "50px", background: "transparent", color: "var(--muted)", cursor: "pointer", fontFamily: "inherit" }}>Delete</button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
+
+      {/* MESSAGES */}
+      {tab === "contacts" && (
+        <div>
+          <div className="admin-section">
+            <h3>Contact Messages ({contacts.length})</h3>
+            {contacts.length === 0 ? <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>No messages yet.</p>
+              : contacts.map((m, i) => (
+                <div className="admin-msg-card" key={i}>
+                  <div className="admin-msg-meta">
+                    <strong>{m.name}</strong> · {m.email}{m.subject ? ` · "${m.subject}"` : ""}
+                    <span style={{ float: "right" }}>{new Date(m.createdAt).toLocaleString()}</span>
+                  </div>
+                  <div className="admin-msg-body">{m.message}</div>
+                </div>
+              ))}
+          </div>
+          <div className="admin-section">
+            <h3>Career Applications ({careers.length})</h3>
+            {careers.length === 0 ? <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>No applications yet.</p>
+              : careers.map((m, i) => (
+                <div className="admin-msg-card" key={i}>
+                  <div className="admin-msg-meta">
+                    <strong>{m.name}</strong> · {m.email}
+                    <span style={{ float: "right" }}>{new Date(m.createdAt).toLocaleString()}</span>
+                  </div>
+                  <div className="admin-msg-body">{m.message}</div>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+
+      {/* ACTIVITY */}
+      {tab === "activity" && (
+        <div className="admin-section">
+          <h3>Click Activity</h3>
+          {clicks.length === 0 ? <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>No click data yet.</p> : (
+            <>
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "20px" }}>
+                {Object.entries(clicks.reduce((acc, c) => { acc[c.page] = (acc[c.page] || 0) + 1; return acc; }, {}))
+                  .sort((a, b) => b[1] - a[1]).map(([pg, count]) => (
+                    <div key={pg} style={{ background: "var(--cream)", border: "1px solid var(--sand)", borderRadius: "8px", padding: "10px 16px" }}>
+                      <div style={{ fontWeight: 700, color: "var(--navy)", fontSize: "1rem" }}>{count}</div>
+                      <div style={{ color: "var(--muted)", fontSize: "0.72rem" }}>{pg}</div>
+                    </div>
+                  ))}
+              </div>
+              <table className="clicks-table">
+                <thead><tr><th>Time</th><th>Page</th><th>Element</th></tr></thead>
+                <tbody>
+                  {clicks.slice(0, 50).map((c, i) => (
+                    <tr key={i}>
+                      <td style={{ color: "var(--muted)", fontSize: "0.75rem" }}>{new Date(c.ts).toLocaleString()}</td>
+                      <td>{c.page}</td>
+                      <td style={{ color: "var(--muted)", fontSize: "0.75rem" }}>{c.element}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -2613,9 +3096,34 @@ export default function App() {
   const [isGuestFlow, setIsGuestFlow] = useState(false);
   const [savedDocuments, setSavedDocuments] = useState([]);
   const [showPortalDropdown, setShowPortalDropdown] = useState(false);
+  const [showDrawer, setShowDrawer] = useState(false);
   const [pendingDocument, setPendingDocument] = useState(null);
   const [casesLoading, setCasesLoading] = useState(false);
   const [signups, setSignups] = useState([]);
+  const [analytics, setAnalytics] = useState({ clicks: [], messages: [], totalClicks: 0 });
+
+  // ── CLICK TRACKING ────────────────────────────────────────
+  // Attaches a global listener on mount; fires fire-and-forget POST
+  // to /api/events for every click. Captures page + element label.
+  const pageRef = useRef(page);
+  useEffect(() => { pageRef.current = page; }, [page]);
+
+  useEffect(() => {
+    const handleClick = (e) => {
+      const el = e.target;
+      const label = el.innerText?.trim().slice(0, 60)
+        || el.getAttribute("aria-label")
+        || el.className?.toString().slice(0, 40)
+        || el.tagName;
+      fetch("/api/events", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "track-click", page: pageRef.current, element: label, ts: Date.now() })
+      }).catch(() => {});
+    };
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, []);
 
   // ── LOAD CASES FROM KV ON MOUNT ───────────────────────────
   useEffect(() => {
@@ -2660,6 +3168,39 @@ export default function App() {
     } catch (e) {
       console.error("Failed to load signups:", e);
     }
+  };
+
+  // ── LOAD ANALYTICS FOR ADMIN ──────────────────────────────
+  const loadAnalytics = async () => {
+    try {
+      const res = await fetch("/api/events", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "get-analytics" })
+      });
+      const data = await res.json();
+      if (data.analytics) setAnalytics(data.analytics);
+    } catch (e) {
+      console.error("Failed to load analytics:", e);
+    }
+  };
+
+  // ── HANDLE CONTACT / CAREER SUBMISSION ────────────────────
+  const handleMessage = async (formData) => {
+    try {
+      await fetch("/api/events", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "submit-message", ...formData, createdAt: new Date().toISOString() })
+      });
+    } catch (e) {
+      console.error("Failed to submit message:", e);
+    }
+  };
+
+  // ── ADMIN REFRESH ─────────────────────────────────────────
+  const handleAdminRefresh = async () => {
+    await Promise.all([loadSignups(currentUser?.email), loadAnalytics(), loadCases()]);
   };
 
   // ── ADMIN: APPROVE ATTORNEY ───────────────────────────────
@@ -2790,7 +3331,12 @@ export default function App() {
       if (data.user.type === "attorney") {
         await loadCases();
         await loadSignups(data.user.email);
-        setPage("dashboard");
+        if (data.user.email === "j.davies@daviesinjurylaw.com") {
+          await loadAnalytics();
+          setPage("admin");
+        } else {
+          setPage("dashboard");
+        }
       } else {
         setPage("client-portal");
       }
@@ -3104,67 +3650,87 @@ Respond ONLY with a JSON object (no markdown, no explanation):
     }
   };
 
-  const navItems = currentUser 
-    ? []
-    : [
-        { key: "landing", label: "Home" },
-        { key: "about", label: "About" },
-        { key: "services", label: "Services" },
-        { key: "portal", label: "Portal ▾" }
-      ];
+  const navItems = [
+    { key: "landing", label: "Home" },
+    { key: "about", label: "About" },
+    { key: "contact", label: "Contact" },
+    { key: "services", label: "Services" },
+    { key: "careers", label: "Careers" },
+  ];
+
+  const closeDrawer = () => setShowDrawer(false);
+  const openPage = (key) => { handleNavClick(key); closeDrawer(); };
 
   return (
     <>
       <style>{STYLES}</style>
 
-      <nav className="nav">
-        <div className="nav-logo" onClick={() => { setPage("landing"); if (!currentUser) setCaseData(null); }}>
-          WALT<span>.</span>
+      {/* ── SIDE DRAWER OVERLAY ── */}
+      <div className={`drawer-overlay ${showDrawer ? "open" : ""}`} onClick={closeDrawer} />
+
+      {/* ── SIDE DRAWER ── */}
+      <div className={`drawer ${showDrawer ? "open" : ""}`}>
+        <div className="drawer-header">
+          <div className="drawer-logo">WALT<span>.</span></div>
+          <button className="drawer-close" onClick={closeDrawer}>×</button>
         </div>
-        <div className="nav-links">
+        <div className="drawer-body">
           {currentUser ? (
             <>
-              <span style={{ fontSize: "0.82rem", color: "var(--muted)", padding: "7px 16px" }}>
+              <div className="drawer-user">
                 {currentUser.type === "attorney" ? currentUser.name : `${currentUser.firstName} ${currentUser.lastInitial}.`}
-              </span>
+              </div>
               {currentUser.type === "client" && (
-                <button className="nav-btn" onClick={() => setPage("client-portal")}>My Cases</button>
+                <button className="drawer-item" onClick={() => { setPage("client-portal"); closeDrawer(); }}>My Cases</button>
               )}
-              {currentUser.type === "attorney" && (
-                <button className="nav-btn" onClick={() => setPage("dashboard")}>Dashboard</button>
+              {currentUser.type === "attorney" && currentUser.email === "j.davies@daviesinjurylaw.com" && (
+                <>
+                  <button className="drawer-item" onClick={() => { setPage("admin"); closeDrawer(); }}>Command Center</button>
+                  <button className="drawer-item" onClick={() => { setPage("dashboard"); closeDrawer(); }}>Dashboard</button>
+                </>
               )}
-              <button className="nav-btn" onClick={handleLogout}>Logout</button>
+              {currentUser.type === "attorney" && currentUser.email !== "j.davies@daviesinjurylaw.com" && (
+                <button className="drawer-item" onClick={() => { setPage("dashboard"); closeDrawer(); }}>Dashboard</button>
+              )}
+              <div className="drawer-divider" />
+              <button className="drawer-item" onClick={() => { handleLogout(); closeDrawer(); }}>Logout</button>
             </>
           ) : (
             <>
+              <div className="drawer-section-label">Navigate</div>
               {navItems.map(n => (
-                <button 
-                  key={n.key} 
-                  className={`nav-btn ${page === n.key ? "active" : ""}`} 
-                  onClick={() => handleNavClick(n.key)}
+                <button
+                  key={n.key}
+                  className={`drawer-item ${page === n.key ? "active" : ""}`}
+                  onClick={() => openPage(n.key)}
                 >
                   {n.label}
                 </button>
               ))}
-              {showPortalDropdown && (
-                <div className="portal-dropdown">
-                  <div className="portal-dropdown-item primary" onClick={() => handleNavClick("create-account")}>
-                    Create Account
-                  </div>
-                  <div className="portal-dropdown-item" onClick={() => handleNavClick("login-client")}>
-                    Client Login
-                  </div>
-                  <div className="portal-dropdown-item" onClick={() => handleNavClick("login-attorney")}>
-                    Attorney Login
-                  </div>
-                  <div className="portal-dropdown-item" onClick={() => handleNavClick("attorney-signup")}>
-                    Attorney Signup
-                  </div>
-                </div>
-              )}
+              <div className="drawer-divider" />
+              <div className="drawer-section-label">Account</div>
+              <button className="drawer-item primary" onClick={() => openPage("create-account")}>Create Account</button>
+              <button className="drawer-item" onClick={() => { handleNavClick("login-client"); closeDrawer(); }}>Client Login</button>
+              <button className="drawer-item" onClick={() => { handleNavClick("login-attorney"); closeDrawer(); }}>Attorney Login</button>
+              <button className="drawer-item" onClick={() => openPage("attorney-signup")}>Attorney Signup</button>
             </>
           )}
         </div>
+        <div className="drawer-footer">© 2026 Worth A Lawyer's Time, LLC.</div>
+      </div>
+
+      {/* ── TOP NAV BAR ── */}
+      <nav className="nav">
+        <div className="nav-logo" onClick={() => { setPage("landing"); if (!currentUser) setCaseData(null); }}>
+          WALT<span>.</span>
+        </div>
+        <button
+          className={`nav-hamburger ${showDrawer ? "open" : ""}`}
+          onClick={() => setShowDrawer(prev => !prev)}
+          aria-label="Open menu"
+        >
+          <span /><span /><span />
+        </button>
       </nav>
 
       {page === "landing" && (
@@ -3215,7 +3781,7 @@ Respond ONLY with a JSON object (no markdown, no explanation):
       {page === "attorney-pending" && (
         <div className="summary-page" style={{ textAlign: "center", paddingTop: "60px" }}>
           <div style={{ maxWidth: "560px", margin: "0 auto" }}>
-            <div style={{ fontSize: "2.5rem", marginBottom: "20px", color: "var(--gold)" }}>⏳</div>
+            <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "rgba(197,165,114,0.15)", border: "2px solid var(--gold)", color: "var(--gold)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", fontSize: "1rem", fontWeight: 700 }}>~</div>
             <h2 style={{ marginBottom: "12px" }}>Application Received</h2>
             <p style={{ fontSize: "0.95rem", color: "var(--charcoal)", lineHeight: "1.8", marginBottom: "32px" }}>
               Thank you for applying to join the WALT attorney network. Your application is under review. 
@@ -3296,6 +3862,33 @@ Respond ONLY with a JSON object (no markdown, no explanation):
 
       {page === "about" && <AboutPage />}
       {page === "services" && <ServicesPage onServiceClick={handleServiceClick} />}
+
+      {page === "careers" && (
+        <CareersPage
+          onSubmit={handleMessage}
+          onBack={() => setPage("landing")}
+        />
+      )}
+
+      {page === "contact" && (
+        <ContactPage
+          onSubmit={handleMessage}
+          onBack={() => setPage("landing")}
+        />
+      )}
+
+      {page === "admin" && currentUser?.email === "j.davies@daviesinjurylaw.com" && (
+        <AdminCommandCenter
+          signups={signups}
+          cases={cases}
+          analytics={analytics}
+          onApproveAttorney={handleApproveAttorney}
+          onDenyAttorney={handleDenyAttorney}
+          onDeleteAccount={handleDeleteAccount}
+          onChangeTier={handleChangeTier}
+          onRefresh={handleAdminRefresh}
+        />
+      )}
       
       {page === "document-assistant" && (
         <DocumentAssistant 
