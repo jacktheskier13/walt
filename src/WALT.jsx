@@ -1182,23 +1182,6 @@ function ClientPortal({ clientData, cases, onLogout, onStartNewClaim, savedDocum
     </div>
   );
 }
-  const [showSelectionModal, setShowSelectionModal] = useState(false);
-  const [selectedBid, setSelectedBid] = useState(null);
-  const [selectedCaseId, setSelectedCaseId] = useState(null);
-  
-  const clientCases = cases.filter(c => c.clientEmail === clientData.email);
-  const clientDocs = savedDocuments?.filter(d => d.clientEmail === clientData.email) || [];
-
-  const handleDownloadDocument = (doc) => {
-    const blob = new Blob([doc.documentText], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${doc.type.replace(/\s+/g, "_")}_${doc.caseNumber || "Document"}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
 // ─── ATTORNEY PARTNERS DASHBOARD ────────────────────────────
 function AttorneyDashboard({ cases, currentAttorney, onBidSubmit, signups, onApproveAttorney, onDenyAttorney, onDeleteAccount, onChangeTier, onUpdateProfile }) {
   const [expandedCase, setExpandedCase] = useState(null);
