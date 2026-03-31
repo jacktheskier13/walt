@@ -186,6 +186,15 @@ function buildSignupSummary(account) {
       tier: account.tier || "free",
       status: account.status || "pending",
       createdAt: account.createdAt,
+      // Profile fields — kept in summary so finder page works from index:signups
+      bio: account.bio || null,
+      feeStructure: account.feeStructure || null,
+      approach: account.approach || null,
+      counties: account.counties || null,
+      winRate: account.winRate || null,
+      avgCaseValue: account.avgCaseValue || null,
+      yearsExperience: account.yearsExperience || null,
+      proBonoAvailable: account.proBonoAvailable || false,
     };
   }
   return {
@@ -546,6 +555,35 @@ export default async function handler(req, res) {
       }
 
       // ══════════════════════════════════════════════════════
+      // GET APPROVED ATTORNEYS — public endpoint for finder
+      // ══════════════════════════════════════════════════════
+      case "get-approved-attorneys": {
+        // Returns a public-safe list of all approved attorneys for the finder page.
+        // No auth required — this is intentionally public.
+        const list = (await kv.get("index:signups")) || [];
+        const approved = list
+          .filter(a => a.type === "attorney" && a.status === "approved")
+          .map(a => ({
+            type: "attorney",
+            name: a.name,
+            email: a.email,
+            firm: a.firm || null,
+            barNumber: a.barNumber || null,
+            practiceAreas: a.practiceAreas || [],
+            tier: a.tier || "free",
+            status: "approved",
+            bio: a.bio || null,
+            feeStructure: a.feeStructure || null,
+            counties: a.counties || null,
+            winRate: a.winRate || null,
+            avgCaseValue: a.avgCaseValue || null,
+            yearsExperience: a.yearsExperience || null,
+            proBonoAvailable: a.proBonoAvailable || false,
+          }));
+        return res.status(200).json({ attorneys: approved });
+      }
+
+      // ══════════════════════════════════════════════════════
       // UPDATE ATTORNEY PROFILE
       // ══════════════════════════════════════════════════════
       case "update-profile": {
@@ -557,7 +595,7 @@ export default async function handler(req, res) {
         if (!account) return res.status(404).json({ error: "Account not found." });
 
         // Only allow updating safe profile fields — never credentials or status
-        const allowedFields = ["bio", "feeStructure", "approach", "counties", "yearsExperience", "winRate", "avgCaseValue"];
+        const allowedFields = ["bio", "feeStructure", "approach", "counties", "yearsExperience", "winRate", "avgCaseValue", "proBonoAvailable"];
         const safeUpdates = {};
         for (const field of allowedFields) {
           if (profileData[field] !== undefined) {
@@ -602,6 +640,7 @@ export default async function handler(req, res) {
           avgCaseValue: account.avgCaseValue || null,
           casesWonThisMonth: account.casesWonThisMonth || null,
           bidsThisMonth: account.bidsThisMonth || 0,
+          proBonoAvailable: account.proBonoAvailable || false,
         };
 
         return res.status(200).json({ attorney: publicProfile });

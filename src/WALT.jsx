@@ -330,6 +330,30 @@ const STYLES = `
   .clicks-table th { padding:8px 12px; text-align:left; font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--navy); background:var(--cream); border-bottom:1px solid var(--sand); }
   .clicks-table td { padding:8px 12px; border-bottom:1px solid var(--sand); color:var(--charcoal); }
 
+  /* ─ ATTORNEY FINDER ─ */
+  .finder-page { max-width:860px; margin:60px auto; padding:0 24px; }
+  .finder-page h2 { font-size:2rem; color:var(--navy); margin-bottom:8px; text-align:center; }
+  .finder-page > p { text-align:center; color:var(--charcoal); margin-bottom:36px; font-size:0.88rem; }
+  .finder-filters { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:28px; }
+  .finder-filter { background:#fff; border:1px solid var(--sand); border-radius:12px; padding:18px 20px; }
+  .finder-filter label { display:block; font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:var(--gold); margin-bottom:10px; }
+  .finder-filter select { width:100%; border:none; background:transparent; font-family:inherit; font-size:0.9rem; color:var(--charcoal); outline:none; cursor:pointer; }
+  .finder-results { display:grid; gap:16px; }
+  .finder-card { background:#fff; border:1px solid var(--sand); border-radius:12px; padding:24px 28px; box-shadow:var(--shadow); display:flex; gap:24px; align-items:flex-start; transition:box-shadow 0.2s; }
+  .finder-card:hover { box-shadow:var(--shadow-md); }
+  .finder-avatar { width:52px; height:52px; border-radius:50%; background:var(--navy); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-family:'Cormorant Garamond',serif; font-weight:600; flex-shrink:0; }
+  .finder-info { flex:1; }
+  .finder-name { font-size:1.1rem; font-family:'Cormorant Garamond',serif; font-weight:600; color:var(--navy); margin-bottom:2px; }
+  .finder-firm { font-size:0.8rem; color:var(--muted); margin-bottom:8px; }
+  .finder-tags { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+  .finder-tag { font-size:0.7rem; padding:3px 10px; border-radius:50px; background:var(--cream); border:1px solid var(--sand); color:var(--charcoal); }
+  .finder-tag.pro-bono { background:rgba(39,174,96,0.1); border-color:rgba(39,174,96,0.4); color:#1a7a42; font-weight:600; }
+  .finder-tag.tier-gold { background:rgba(197,165,114,0.15); border-color:rgba(197,165,114,0.5); color:var(--gold-hover); font-weight:600; }
+  .finder-bio { font-size:0.83rem; color:var(--charcoal); line-height:1.65; }
+  .finder-empty { text-align:center; padding:60px 24px; color:var(--muted); background:#fff; border-radius:12px; border:1px solid var(--sand); }
+  .finder-cta-row { display:flex; gap:10px; margin-top:14px; }
+  @media(max-width:680px) { .finder-filters { grid-template-columns:1fr; } .finder-card { flex-direction:column; } }
+
   /* ─ SERVICES ─ */
   .services-page { max-width:900px; margin:60px auto; padding:0 24px; }
   .services-page h2 { font-size:2rem; color:var(--navy); margin-bottom:4px; text-align:center; }
@@ -1200,6 +1224,7 @@ function AttorneyDashboard({ cases, currentAttorney, onBidSubmit, signups, onApp
     yearsExperience: currentAttorney?.yearsExperience || "",
     winRate: currentAttorney?.winRate || "",
     avgCaseValue: currentAttorney?.avgCaseValue || "",
+    proBonoAvailable: currentAttorney?.proBonoAvailable || false,
   });
 
   const toggleAssessment = (caseId) => setExpandedAssessments(prev => ({ ...prev, [caseId]: !prev[caseId] }));
@@ -1209,6 +1234,7 @@ function AttorneyDashboard({ cases, currentAttorney, onBidSubmit, signups, onApp
   const isGold = attorneyTier === "gold";
   const isSilver = attorneyTier === "silver";
   const isFree = attorneyTier === "free";
+  const isProBonoTier = attorneyTier === "pro-bono";
 
   // Calculate hours since case was posted
   const getHoursSincePosted = (submittedAt) => {
@@ -1218,25 +1244,18 @@ function AttorneyDashboard({ cases, currentAttorney, onBidSubmit, signups, onApp
   // Filter cases based on tier and timing
   const visibleCases = cases.filter(c => {
     const hoursSincePosted = getHoursSincePosted(c.submittedAt);
-    
-    // Marketplace cases: everyone sees immediately
-    if (!c.isPremium) {
-      return true;
-    }
-    
-    // Premium cases
-    if (isGold) {
-      return true; // Gold sees everything immediately
-    }
-    
-    if (isSilver && hoursSincePosted >= 48) {
-      return true; // Silver sees premium after 48 hours
-    }
-    
-    if (isFree && hoursSincePosted >= 120) {
-      return true; // Free tier sees premium after 5 days
-    }
-    
+
+    // Pro bono tier: only sees pro bono flagged cases
+    if (isProBonoTier) return c.isProBono === true;
+
+    // Marketplace cases: everyone else sees immediately
+    if (!c.isPremium) return true;
+
+    // Premium cases by tier
+    if (isGold) return true;
+    if (isSilver && hoursSincePosted >= 48) return true;
+    if (isFree && hoursSincePosted >= 120) return true;
+
     return false;
   });
 
@@ -1323,6 +1342,7 @@ function AttorneyDashboard({ cases, currentAttorney, onBidSubmit, signups, onApp
             {isGold && "Premium case feed — immediate access to high-value contingency matters."}
             {isSilver && "Access to all marketplace cases plus premium cases after 48 hours."}
             {isFree && "Browse marketplace cases and submit up to 3 bids per month."}
+            {isProBonoTier && "Pro bono case feed — cases from clients who need no-cost representation."}
           </p>
         </div>
         
@@ -1368,6 +1388,14 @@ function AttorneyDashboard({ cases, currentAttorney, onBidSubmit, signups, onApp
                 <span style={{ fontSize: "0.7rem", color: "var(--gold)", cursor: "pointer", textDecoration: "underline" }}>Upgrade to Silver</span>
               </>
             )}
+            {isProBonoTier && (
+              <>
+                <div style={{ fontWeight: 600, color: "#1a7a42", marginBottom: "4px", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "1px" }}>Pro Bono Tier</div>
+                Access to pro bono cases only<br />
+                No subscription cost<br />
+                <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Thank you for your service</span>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -1400,6 +1428,22 @@ function AttorneyDashboard({ cases, currentAttorney, onBidSubmit, signups, onApp
               <input type="text" placeholder="e.g., Yellowstone, Missoula, Cascade" value={editProfile.counties}
                 onChange={e => setEditProfile(p => ({ ...p, counties: e.target.value }))} />
             </div>
+          </div>
+          <div className="form-group" style={{ marginTop: "4px" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", fontWeight: 400 }}>
+              <input
+                type="checkbox"
+                checked={editProfile.proBonoAvailable || false}
+                onChange={e => setEditProfile(p => ({ ...p, proBonoAvailable: e.target.checked }))}
+                style={{ width: "16px", height: "16px", cursor: "pointer" }}
+              />
+              <span>
+                <strong>Available for Pro Bono matters</strong>
+                <span style={{ display: "block", fontSize: "0.75rem", color: "var(--muted)", fontWeight: 400 }}>
+                  Your profile will be marked as pro bono available in the attorney finder.
+                </span>
+              </span>
+            </label>
           </div>
           <div className="form-group">
             <label>Bio</label>
@@ -1581,6 +1625,7 @@ function AttorneyDashboard({ cases, currentAttorney, onBidSubmit, signups, onApp
                                   <option value="free">Free</option>
                                   <option value="silver">Silver</option>
                                   <option value="gold">Gold</option>
+                                  <option value="pro-bono">Pro Bono</option>
                                 </select>
                               ) : adminTab === "pending" ? (
                                 <select
@@ -1598,6 +1643,7 @@ function AttorneyDashboard({ cases, currentAttorney, onBidSubmit, signups, onApp
                                   <option value="free">Free</option>
                                   <option value="silver">Silver</option>
                                   <option value="gold">Gold</option>
+                                  <option value="pro-bono">Pro Bono</option>
                                 </select>
                               ) : (
                                 <span style={{ fontSize: "0.72rem", fontWeight: 600, textTransform: "uppercase", color: "var(--muted)" }}>—</span>
@@ -1680,6 +1726,7 @@ function AttorneyDashboard({ cases, currentAttorney, onBidSubmit, signups, onApp
             {isGold && "No new cases at the moment. You'll be notified immediately when qualifying cases are submitted."}
             {isSilver && "No active cases at the moment. Check back soon!"}
             {isFree && "No marketplace cases available. Check back soon or upgrade to access more cases."}
+            {isProBonoTier && "No pro bono cases at the moment. Check back soon — cases are added as clients are matched to this program."}
           </div>
         )}
 
@@ -1977,319 +2024,187 @@ function AttorneyDashboard({ cases, currentAttorney, onBidSubmit, signups, onApp
 
 // ─── ABOUT PAGE ─────────────────────────────────────────────
 function AboutPage() {
+  const [open, setOpen] = useState({});
+  const toggle = (key) => setOpen(prev => ({ ...prev, [key]: !prev[key] }));
+
+  const Accordion = ({ id, title, children, accent }) => (
+    <div style={{
+      background: '#fff',
+      border: `1px solid ${accent ? 'rgba(39,174,96,0.3)' : 'var(--sand)'}`,
+      borderLeft: accent ? '4px solid var(--success)' : '1px solid var(--sand)',
+      borderRadius: '12px',
+      marginBottom: '10px',
+      overflow: 'hidden',
+    }}>
+      <button
+        onClick={() => toggle(id)}
+        style={{
+          width: '100%', display: 'flex', justifyContent: 'space-between',
+          alignItems: 'center', padding: '18px 24px', background: 'transparent',
+          border: 'none', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
+        }}
+      >
+        <span style={{ fontSize: '1.05rem', fontFamily: "'Cormorant Garamond', serif", fontWeight: 600, color: accent ? '#1a7a42' : 'var(--navy)' }}>
+          {title}
+        </span>
+        <span style={{ color: 'var(--muted)', fontSize: '1rem', flexShrink: 0, marginLeft: '12px', transition: 'transform 0.2s', display: 'inline-block', transform: open[id] ? 'rotate(180deg)' : 'rotate(0deg)' }}>▾</span>
+      </button>
+      {open[id] && (
+        <div style={{ padding: '0 24px 20px', fontSize: '0.88rem', color: 'var(--charcoal)', lineHeight: '1.8' }}>
+          {children}
+        </div>
+      )}
+    </div>
+  );
+
+  const FaqItem = ({ q, children }) => (
+    <div style={{ marginBottom: '18px', paddingBottom: '18px', borderBottom: '1px solid var(--sand)' }}>
+      <div style={{ fontWeight: 600, color: 'var(--navy)', marginBottom: '8px', fontSize: '0.92rem' }}>{q}</div>
+      <div style={{ fontSize: '0.85rem', color: 'var(--charcoal)', lineHeight: '1.7' }}>{children}</div>
+    </div>
+  );
+
   return (
     <div className="about-page">
 
-      {/* ── DEMO NOTICE ── */}
+      {/* ── DEMO NOTICE (always visible) ── */}
       <div style={{
-        background: "linear-gradient(135deg, rgba(30,58,95,0.06), rgba(30,58,95,0.03))",
-        border: "1.5px solid rgba(30,58,95,0.2)",
-        borderRadius: "12px",
-        padding: "20px 28px",
-        marginBottom: "24px",
-        display: "flex",
-        gap: "16px",
-        alignItems: "flex-start"
+        background: 'linear-gradient(135deg, rgba(30,58,95,0.06), rgba(30,58,95,0.03))',
+        border: '1.5px solid rgba(30,58,95,0.2)',
+        borderRadius: '12px',
+        padding: '20px 28px',
+        marginBottom: '16px',
+        display: 'flex',
+        gap: '16px',
+        alignItems: 'flex-start'
       }}>
-        <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase", color: "var(--navy)", background: "rgba(30,58,95,0.12)", padding: "4px 10px", borderRadius: "6px", flexShrink: 0, whiteSpace: "nowrap" }}>Demo</div>
+        <div style={{ fontSize: '0.7rem', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--navy)', background: 'rgba(30,58,95,0.12)', padding: '4px 10px', borderRadius: '6px', flexShrink: 0, whiteSpace: 'nowrap' }}>Demo</div>
         <div>
-          <div style={{ fontWeight: 700, color: "var(--navy)", fontSize: "1.05rem", marginBottom: "8px", fontFamily: "'Cormorant Garamond', serif" }}>
+          <div style={{ fontWeight: 700, color: 'var(--navy)', fontSize: '1.05rem', marginBottom: '8px', fontFamily: "'Cormorant Garamond', serif" }}>
             WALT is Currently in Demo Mode
           </div>
-          <p style={{ fontSize: "0.84rem", color: "var(--charcoal)", lineHeight: "1.75", margin: 0 }}>
+          <p style={{ fontSize: '0.84rem', color: 'var(--charcoal)', lineHeight: '1.75', margin: 0 }}>
             This is a working demonstration of the WALT platform. <strong>Any case submitted here is for testing purposes only</strong> — no real attorney-client relationships are formed and no actual legal services are provided through this demo.
           </p>
-          <p style={{ fontSize: "0.84rem", color: "var(--charcoal)", lineHeight: "1.75", marginTop: "10px", marginBottom: 0 }}>
-            <strong>Attorneys who create an account during the demo period</strong> are doing so for informational and preview purposes. When WALT launches as a fully operating business, every attorney who signed up during the demo will automatically receive a <strong style={{ color: "var(--gold)" }}>free Gold-tier subscription</strong> — our highest access level — as a thank-you for being an early supporter.
+          <p style={{ fontSize: '0.84rem', color: 'var(--charcoal)', lineHeight: '1.75', marginTop: '10px', marginBottom: 0 }}>
+            <strong>Attorneys who create an account during the demo period</strong> are doing so for informational and preview purposes. When WALT launches as a fully operating business, every attorney who signed up during the demo will automatically receive a <strong style={{ color: 'var(--gold)' }}>free Gold-tier subscription</strong> — our highest access level — as a thank-you for being an early supporter.
           </p>
         </div>
       </div>
 
-      <div className="disclaimer">
+      {/* ── LEGAL DISCLAIMER (always visible) ── */}
+      <div className="disclaimer" style={{ marginBottom: '28px' }}>
         <strong>Important Disclaimer:</strong> WALT is a legal marketplace platform and does <strong>not</strong> provide legal advice. No attorney-client relationship is formed through use of this service. This platform is limited to <strong>Montana jurisdiction only</strong>. Always consult a licensed Montana attorney for guidance specific to your situation.
       </div>
 
       <h2>About WALT</h2>
       <p>Worth A Lawyer's Time</p>
 
-      <div className="about-block">
-        <h3>Our Mission</h3>
-        <p>
-          <strong>WALT stands for Worth A Lawyer's Time.</strong> Montana faces a shocking access to justice crisis. 
-          A 2010 Carmody & Associates report found that nearly half of low-income Montanans faced at least one civil 
-          legal problem, one-third faced multiple issues, and fewer than a quarter took action to address them. 
-          Across eviction, consumer credit, and child support cases, an overwhelming 95–99% of people facing these 
-          legal challenges do so without an attorney. Several Montana counties lack a single attorney.
-        </p>
-        <p style={{ marginTop: "16px" }}>
-          Built by a University of Montana law student, WALT aims to alleviate some of these issues by providing an 
-          easy-to-use service that connects qualified attorneys to Montanans in need of assistance.
-        </p>
-      </div>
+      <div style={{ marginTop: '24px' }}>
 
-      <div className="about-block">
-        <h3>Frequently Asked Questions</h3>
-        
-        <div style={{ marginBottom: "20px" }}>
-          <h4 style={{ fontSize: "0.95rem", color: "var(--navy)", marginBottom: "8px", fontWeight: 600 }}>
-            How does WALT work?
-          </h4>
-          <p style={{ fontSize: "0.85rem", color: "var(--charcoal)", lineHeight: "1.7" }}>
-            WALT uses AI-powered intake to gather information about your legal issue, then connects you with Montana 
-            attorneys who can help. Attorneys review your case and submit competitive bids. You choose the attorney 
-            that best fits your needs and budget.
-          </p>
-        </div>
+        {/* OUR MISSION */}
+        <Accordion id="mission" title="Our Mission">
+          <p><strong>WALT stands for Worth A Lawyer's Time.</strong> Montana faces a shocking access to justice crisis. A 2010 Carmody &amp; Associates report found that nearly half of low-income Montanans faced at least one civil legal problem, one-third faced multiple issues, and fewer than a quarter took action to address them. Across eviction, consumer credit, and child support cases, an overwhelming 95–99% of people facing these legal challenges do so without an attorney. Several Montana counties lack a single attorney.</p>
+          <p style={{ marginTop: '14px' }}>Built by a University of Montana law student, WALT aims to alleviate some of these issues by providing an easy-to-use service that connects qualified attorneys to Montanans in need of assistance.</p>
+        </Accordion>
 
-        <div style={{ marginBottom: "20px" }}>
-          <h4 style={{ fontSize: "0.95rem", color: "var(--navy)", marginBottom: "8px", fontWeight: 600 }}>
-            Is WALT free to use?
-          </h4>
-          <p style={{ fontSize: "0.85rem", color: "var(--charcoal)", lineHeight: "1.7" }}>
-            Creating an account and submitting your case to attorneys is free. You only pay attorney fees if you 
-            choose to hire an attorney who bid on your case. The self-service document tools are completely free.
-          </p>
-        </div>
-
-        <div style={{ marginBottom: "20px" }}>
-          <h4 style={{ fontSize: "0.95rem", color: "var(--navy)", marginBottom: "8px", fontWeight: 600 }}>
-            What types of legal issues does WALT handle?
-          </h4>
-          <p style={{ fontSize: "0.85rem", color: "var(--charcoal)", lineHeight: "1.7" }}>
-            WALT currently focuses on all civil legal matters in Montana. Free self-service tools are available 
-            for landlord-tenant issues and debt collection matters, allowing you to prepare court documents at no 
-            cost. For other civil legal needs, our attorney marketplace connects you with qualified Montana lawyers 
-            who can provide representation.
-          </p>
-        </div>
-
-        <div style={{ marginBottom: "20px" }}>
-          <h4 style={{ fontSize: "0.95rem", color: "var(--navy)", marginBottom: "8px", fontWeight: 600 }}>
-            Are the attorneys on WALT licensed in Montana?
-          </h4>
-          <p style={{ fontSize: "0.85rem", color: "var(--charcoal)", lineHeight: "1.7" }}>
-            Yes. All attorney partners on WALT are licensed to practice law in Montana and are in good standing 
-            with the Montana State Bar. We verify credentials before accepting attorneys into our network.
-          </p>
-        </div>
-
-        <div style={{ marginBottom: "20px" }}>
-          <h4 style={{ fontSize: "0.95rem", color: "var(--navy)", marginBottom: "8px", fontWeight: 600 }}>
-            Can I use the self-service document tools without creating an account?
-          </h4>
-          <p style={{ fontSize: "0.85rem", color: "var(--charcoal)", lineHeight: "1.7" }}>
-            Yes! You can use our document assistant tools and download the completed documents as drafts without 
-            creating an account. However, creating a free account allows you to save your documents and access 
-            them anytime.
-          </p>
-        </div>
-
-        <div style={{ marginBottom: "20px" }}>
-          <h4 style={{ fontSize: "0.95rem", color: "var(--navy)", marginBottom: "8px", fontWeight: 600 }}>
-            How do I know which attorney to choose?
-          </h4>
-          <p style={{ fontSize: "0.85rem", color: "var(--charcoal)", lineHeight: "1.7" }}>
-            Each attorney bid includes their rate, estimated timeline, and a personalized message explaining why 
-            they're a good fit for your case. You can review their firm information and choose based on your 
-            priorities—whether that's cost, experience, or timeline.
-          </p>
-        </div>
-
-        <div style={{ marginBottom: "20px" }}>
-          <h4 style={{ fontSize: "0.95rem", color: "var(--navy)", marginBottom: "8px", fontWeight: 600 }}>
-            What if I can't afford an attorney?
-          </h4>
-          <p style={{ fontSize: "0.85rem", color: "var(--charcoal)", lineHeight: "1.7" }}>
-            WALT's self-service tools are designed to help you handle certain legal tasks yourself at no cost. 
-            For representation, you may also qualify for free legal aid through Montana Legal Services Association 
-            (MLSA). Call the MLSA HelpLine at 1-800-666-6899 or visit mtlsa.org to see if you qualify.
-          </p>
-        </div>
-
-        <div style={{ marginBottom: "20px" }}>
-          <h4 style={{ fontSize: "0.95rem", color: "var(--navy)", marginBottom: "8px", fontWeight: 600 }}>
-            Is my information confidential?
-          </h4>
-          <p style={{ fontSize: "0.85rem", color: "var(--charcoal)", lineHeight: "1.7" }}>
-            Yes. Your case information is only shared with attorneys in our verified network. We take privacy 
-            seriously and protect your data. However, remember that no attorney-client relationship exists until 
-            you formally hire an attorney.
-          </p>
-        </div>
-
-        <div style={{ marginBottom: "20px" }}>
-          <h4 style={{ fontSize: "0.95rem", color: "var(--navy)", marginBottom: "8px", fontWeight: 600 }}>
-            I'm an attorney. How can I join the WALT network?
-          </h4>
-          <p style={{ fontSize: "0.85rem", color: "var(--charcoal)", lineHeight: "1.7" }}>
-            Montana-licensed attorneys can apply to join our network by contacting us at partners@walt.legal 
-            (example). We welcome attorneys committed to expanding access to justice in Montana.
-          </p>
-        </div>
-
-        <div style={{ marginBottom: "20px" }}>
-          <h4 style={{ fontSize: "0.95rem", color: "var(--navy)", marginBottom: "8px", fontWeight: 600 }}>
-            How does WALT make money? What do attorneys pay?
-          </h4>
-          <p style={{ fontSize: "0.85rem", color: "var(--charcoal)", lineHeight: "1.7", marginBottom: "12px" }}>
-            WALT operates on a subscription model that delivers pre-qualified client leads to Montana attorneys. 
-            Clients always use WALT for free—we never charge clients to post cases or receive bids.
-          </p>
-          <p style={{ fontSize: "0.85rem", color: "var(--charcoal)", lineHeight: "1.7", marginBottom: "12px" }}>
-            <strong>For attorneys, we offer three tiers:</strong>
-          </p>
-          
-          <div style={{ 
-            background: "var(--cream)", 
-            border: "1px solid var(--sand)", 
-            borderRadius: "8px", 
-            padding: "16px 20px",
-            marginBottom: "12px"
-          }}>
-            <div style={{ fontWeight: 600, color: "var(--sage)", marginBottom: "8px", fontSize: "0.88rem" }}>
-              Free Tier (Marketplace)
+        {/* FAQ */}
+        <Accordion id="faq" title="Frequently Asked Questions">
+          <FaqItem q="How does WALT work?">
+            WALT uses AI-powered intake to gather information about your legal issue, then connects you with Montana attorneys who can help. Attorneys review your case and submit competitive bids. You choose the attorney that best fits your needs and budget.
+          </FaqItem>
+          <FaqItem q="Is WALT free to use?">
+            Creating an account and submitting your case to attorneys is free. You only pay attorney fees if you choose to hire an attorney who bid on your case. The self-service document tools are completely free.
+          </FaqItem>
+          <FaqItem q="What types of legal issues does WALT handle?">
+            WALT currently focuses on all civil legal matters in Montana. Free self-service tools are available for landlord-tenant issues and debt collection matters, allowing you to prepare court documents at no cost. For other civil legal needs, our attorney marketplace connects you with qualified Montana lawyers who can provide representation.
+          </FaqItem>
+          <FaqItem q="Are the attorneys on WALT licensed in Montana?">
+            Yes. All attorney partners on WALT are licensed to practice law in Montana and are in good standing with the Montana State Bar. We verify credentials before accepting attorneys into our network.
+          </FaqItem>
+          <FaqItem q="Can I use the self-service document tools without creating an account?">
+            Yes! You can use our document assistant tools and download the completed documents as drafts without creating an account. However, creating a free account allows you to save your documents and access them anytime.
+          </FaqItem>
+          <FaqItem q="How do I know which attorney to choose?">
+            Each attorney bid includes their rate, estimated timeline, and a personalized message explaining why they're a good fit for your case. You can review their firm information and choose based on your priorities — whether that's cost, experience, or timeline.
+          </FaqItem>
+          <FaqItem q="What if I can't afford an attorney?">
+            WALT's self-service tools are designed to help you handle certain legal tasks yourself at no cost. For representation, you may also qualify for free legal aid through Montana Legal Services Association (MLSA). Call the MLSA HelpLine at 1-800-666-6899 or visit mtlsa.org to see if you qualify.
+          </FaqItem>
+          <FaqItem q="Is my information confidential?">
+            Yes. Your case information is only shared with attorneys in our verified network. We take privacy seriously and protect your data. However, remember that no attorney-client relationship exists until you formally hire an attorney.
+          </FaqItem>
+          <FaqItem q="I'm an attorney. How can I join the WALT network?">
+            Montana-licensed attorneys can apply to join our network by signing up directly through the Portal, or by reaching out through our Contact Us form. We welcome attorneys committed to expanding access to justice in Montana.
+          </FaqItem>
+          <FaqItem q="How does WALT make money? What do attorneys pay?">
+            <p style={{ marginBottom: '10px' }}>WALT operates on a subscription model delivering pre-qualified client leads to Montana attorneys. Clients always use WALT for free — we never charge clients to post cases or receive bids.</p>
+            <div style={{ background: 'var(--cream)', border: '1px solid var(--sand)', borderRadius: '8px', padding: '14px 18px', fontSize: '0.83rem' }}>
+              <div style={{ fontWeight: 600, marginBottom: '8px', color: 'var(--navy)' }}>Attorney Subscription Tiers</div>
+              <div style={{ marginBottom: '6px' }}><strong style={{ color: 'var(--sage)' }}>Free</strong> — 3 bids/month, marketplace cases only</div>
+              <div style={{ marginBottom: '6px' }}><strong style={{ color: '#64748B' }}>Silver — $199/mo</strong> — Unlimited bids, premium cases after 48 hrs</div>
+              <div style={{ marginBottom: '6px' }}><strong style={{ color: 'var(--gold)' }}>Gold — $499/mo</strong> — Immediate premium access, first 48 hrs exclusive</div>
+              <div><strong style={{ color: '#1a7a42' }}>Pro Bono</strong> — Free tier for attorneys taking no-cost cases</div>
             </div>
-            <p style={{ fontSize: "0.82rem", color: "var(--charcoal)", lineHeight: "1.6", marginBottom: "6px" }}>
-              • <strong>3 bids per month included</strong> at no cost<br />
-              • Access to all marketplace cases (debt defense, family law, landlord-tenant, bankruptcy)<br />
-              • Additional bids available at $49 each<br />
-              • Perfect for testing WALT or attorneys with selective caseloads
-            </p>
-            <p style={{ fontSize: "0.75rem", color: "var(--muted)", marginTop: "8px", fontStyle: "italic" }}>
-              Example: An attorney handling 1-2 new cases per month can use WALT completely free.
-            </p>
+          </FaqItem>
+          <FaqItem q="Why Montana only?">
+            Montana has unique legal characteristics — from its court system to specific statutes like the Residential Landlord and Tenant Act. WALT is built exclusively for Montana law to ensure clients get connected with attorneys who understand the local landscape. We may expand to other states in the future.
+          </FaqItem>
+        </Accordion>
+
+        {/* PRO BONO */}
+        <Accordion id="probono" title="Pro Bono Legal Services">
+          <p>WALT is committed to expanding access to justice for all Montanans — including those who cannot afford legal representation. Through the WALT Pro Bono Program, licensed Montana attorneys can designate themselves as available for pro bono matters and access a dedicated pool of cases matched to clients who need no-cost representation.</p>
+
+          <p style={{ marginTop: '14px' }}><strong>How it works for attorneys:</strong> When you opt into the Pro Bono Program, you gain access to cases where the client has indicated that cost is a significant barrier. WALT handles the matching invisibly — clients are never told their case is in the pro bono pool, preserving their dignity throughout the process. Attorneys on any subscription tier can participate in pro bono work, and attorneys whose practice is <em>exclusively</em> pro bono may apply for a dedicated Pro Bono tier at no cost.</p>
+
+          <div style={{ background: 'rgba(39,174,96,0.06)', border: '1px solid rgba(39,174,96,0.2)', borderRadius: '10px', padding: '16px 20px', marginTop: '16px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '14px' }}>
+            {[
+              { label: 'Free + Silver + Gold', note: 'Pro bono opt-in is included at no additional cost on all paid tiers. Enable it in your profile settings.' },
+              { label: 'Pro Bono Tier', note: 'A free dedicated tier for attorneys whose practice is exclusively pro bono. Contact us to apply.' },
+              { label: 'Bar Compliance', note: 'Participation counts toward Montana State Bar pro bono reporting requirements.' },
+            ].map(t => (
+              <div key={t.label} style={{ textAlign: 'center' }}>
+                <div style={{ fontWeight: 700, color: '#1a7a42', fontSize: '0.78rem', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.6px' }}>{t.label}</div>
+                <p style={{ fontSize: '0.77rem', color: 'var(--charcoal)', lineHeight: '1.55', margin: 0 }}>{t.note}</p>
+              </div>
+            ))}
           </div>
 
-          <div style={{ 
-            background: "rgba(148,163,184,0.08)", 
-            border: "1.5px solid rgba(148,163,184,0.4)", 
-            borderRadius: "8px", 
-            padding: "16px 20px",
-            marginBottom: "12px"
-          }}>
-            <div style={{ fontWeight: 600, color: "#64748B", marginBottom: "8px", fontSize: "0.88rem" }}>
-              Silver Tier — $199/month
-            </div>
-            <p style={{ fontSize: "0.82rem", color: "var(--charcoal)", lineHeight: "1.6", marginBottom: "6px" }}>
-              • <strong>Unlimited bids</strong> on marketplace cases<br />
-              • Access to premium cases (personal injury, employment) <strong>after 48 hours</strong><br />
-              • Priority placement in bid queue<br />
-              • Basic analytics dashboard<br />
-              • Best for: General practice attorneys handling 5-10 cases/month
-            </p>
-            <p style={{ fontSize: "0.75rem", color: "var(--muted)", marginTop: "8px", fontStyle: "italic" }}>
-              Break-even: Just 5 bids per month vs. buying à la carte ($245 in overage fees). Perfect for attorneys 
-              who want volume across multiple practice areas.
-            </p>
+          <p style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '16px', fontStyle: 'italic' }}>
+            Attorneys interested in the Pro Bono Program can enable it in their profile or reach out through our <strong>Contact Us</strong> form. Clients who need assistance finding no-cost representation may also contact the Montana Legal Services Association (MLSA) HelpLine at <strong>1-800-666-6899</strong> or visit mtlsa.org.
+          </p>
+        </Accordion>
+
+        {/* ETHICS */}
+        <Accordion id="ethics" title="Ethics &amp; Compliance">
+          <p>WALT is designed from the ground up to operate in full compliance with both the ABA Model Rules of Professional Conduct and the Montana Rules of Professional Conduct. Our subscription-based revenue model and operational structure reflect a deliberate commitment to legal ethics — not as an afterthought, but as a core design principle.</p>
+
+          <div style={{ marginTop: '16px' }}>
+            <div style={{ fontWeight: 600, color: 'var(--navy)', marginBottom: '6px' }}>Rule 5.4 — Independence of the Legal Profession</div>
+            <p style={{ fontSize: '0.85rem', lineHeight: '1.7' }}>WALT's business model is structured entirely around flat-rate attorney subscriptions — we never take a percentage of case fees, referral fees, or contingency cuts. All compensation flows directly between client and attorney, ensuring complete independence and Rule 5.4 compliance.</p>
           </div>
 
-          <div style={{ 
-            background: "rgba(197,165,114,0.08)", 
-            border: "1.5px solid rgba(197,165,114,0.4)", 
-            borderRadius: "8px", 
-            padding: "16px 20px"
-          }}>
-            <div style={{ fontWeight: 600, color: "var(--gold)", marginBottom: "8px", fontSize: "0.88rem" }}>
-              Gold Tier — $499/month
-            </div>
-            <p style={{ fontSize: "0.82rem", color: "var(--charcoal)", lineHeight: "1.6", marginBottom: "6px" }}>
-              • <strong>Immediate exclusive access</strong> to premium contingency cases<br />
-              • Personal injury, wrongful termination, civil rights, wrongful death<br />
-              • <strong>First 48 hours exclusive</strong> before cases go to Silver tier<br />
-              • Unlimited bids on all case types (premium + marketplace)<br />
-              • Case quality scoring with estimated settlement values<br />
-              • Priority placement and direct client contact<br />
-              • Advanced analytics and ROI tracking
-            </p>
-            <p style={{ fontSize: "0.75rem", color: "var(--muted)", marginTop: "8px", fontStyle: "italic" }}>
-              Why it's worth it: One quality PI case (avg. $50k settlement at 33% = $16,500 fee) covers 33 months of 
-              subscription. Compare to traditional PI marketing ($5,000–$15,000 per signed client) or referral fees (25–33%). 
-              Gold members average 2-3 signed cases per month.
-            </p>
+          <div style={{ marginTop: '14px' }}>
+            <div style={{ fontWeight: 600, color: 'var(--navy)', marginBottom: '6px' }}>Rule 7.2 — Communications Concerning Services</div>
+            <p style={{ fontSize: '0.85rem', lineHeight: '1.7' }}>WALT operates as a permitted advertising and lead-generation platform — attorneys pay for access to the marketplace, not per referral or case outcome. This is consistent with the Montana Supreme Court's recognition that subscription-based legal marketing services are permissible under the Rules of Professional Conduct.</p>
           </div>
-          
-          <p style={{ fontSize: "0.85rem", color: "var(--charcoal)", lineHeight: "1.7", marginTop: "12px" }}>
-            Our pricing is designed to be significantly cheaper than traditional client acquisition channels while 
-            delivering pre-qualified leads. Attorneys can start with the free tier and upgrade as they see ROI.
-          </p>
-        </div>
 
-        <div style={{ marginBottom: "0" }}>
-          <h4 style={{ fontSize: "0.95rem", color: "var(--navy)", marginBottom: "8px", fontWeight: 600 }}>
-            Why Montana only?
-          </h4>
-          <p style={{ fontSize: "0.85rem", color: "var(--charcoal)", lineHeight: "1.7" }}>
-            Montana has unique legal characteristics—from its court system to specific statutes like the Residential 
-            Landlord and Tenant Act. WALT is built exclusively for Montana law to ensure clients get connected with 
-            attorneys who understand the local landscape. We may expand to other states in the future.
-          </p>
-        </div>
-      </div>
+          <div style={{ marginTop: '14px' }}>
+            <div style={{ fontWeight: 600, color: 'var(--navy)', marginBottom: '6px' }}>Unauthorized Practice of Law</div>
+            <p style={{ fontSize: '0.85rem', lineHeight: '1.7' }}>WALT's AI-powered intake tool gathers and organizes information — it does not analyze legal claims, advise on strategy, or predict outcomes. The platform functions as an intake and routing mechanism only. All substantive legal advice is provided exclusively by licensed Montana attorneys.</p>
+          </div>
 
-      <div className="about-block">
-        <h3>Ethics &amp; Compliance</h3>
-        <p>
-          WALT is designed from the ground up to operate in full compliance with both the ABA Model Rules of Professional 
-          Conduct and the Montana Rules of Professional Conduct. Our subscription-based revenue model and operational 
-          structure reflect a deliberate commitment to legal ethics — not as an afterthought, but as a core design principle.
-        </p>
+          <div style={{ marginTop: '14px' }}>
+            <div style={{ fontWeight: 600, color: 'var(--navy)', marginBottom: '6px' }}>Attorney Verification</div>
+            <p style={{ fontSize: '0.85rem', lineHeight: '1.7' }}>All attorneys admitted to the WALT network are verified as licensed and in good standing with the Montana State Bar prior to platform access. WALT does not restrict, direct, or otherwise influence the independent professional judgment of attorneys in the network.</p>
+          </div>
+        </Accordion>
 
-        <div style={{ marginTop: "20px" }}>
-          <h4 style={{ fontSize: "0.95rem", color: "var(--navy)", marginBottom: "8px", fontWeight: 600 }}>
-            Rule 5.4 — Independence of the Legal Profession
-          </h4>
-          <p style={{ fontSize: "0.85rem", color: "var(--charcoal)", lineHeight: "1.7" }}>
-            Both ABA Model Rule 5.4 and Montana Rule 5.4 prohibit attorneys from sharing legal fees with 
-            non-lawyers. WALT's business model is structured entirely around flat-rate attorney subscriptions — 
-            we never take a percentage of case fees, referral fees, or contingency cuts. Attorneys pay a fixed 
-            monthly subscription for access to pre-qualified leads, and all compensation flows directly between 
-            client and attorney. This structure ensures complete attorney independence and full Rule 5.4 compliance.
-          </p>
-        </div>
-
-        <div style={{ marginTop: "20px" }}>
-          <h4 style={{ fontSize: "0.95rem", color: "var(--navy)", marginBottom: "8px", fontWeight: 600 }}>
-            Rule 7.2 — Communications Concerning Services
-          </h4>
-          <p style={{ fontSize: "0.85rem", color: "var(--charcoal)", lineHeight: "1.7" }}>
-            Montana Rule 7.2 permits attorneys to pay for advertising and referral services, provided the 
-            arrangement does not involve fee-splitting or compromise independent professional judgment. WALT 
-            operates as a permitted advertising and lead-generation platform — attorneys pay for access to 
-            the marketplace, not per referral or case outcome. This is consistent with the Montana Supreme 
-            Court's recognition that subscription-based legal marketing services are permissible under the 
-            Rules of Professional Conduct.
-          </p>
-        </div>
-
-        <div style={{ marginTop: "20px" }}>
-          <h4 style={{ fontSize: "0.95rem", color: "var(--navy)", marginBottom: "8px", fontWeight: 600 }}>
-            Unauthorized Practice of Law
-          </h4>
-          <p style={{ fontSize: "0.85rem", color: "var(--charcoal)", lineHeight: "1.7" }}>
-            WALT's AI-powered intake tool gathers and organizes information from clients — it does not analyze 
-            legal claims, advise clients on strategy, or predict legal outcomes. The platform functions as an 
-            intake and routing mechanism, not a legal advisor. All substantive legal advice is provided exclusively 
-            by licensed Montana attorneys. Our self-service document tools assist users in preparing procedural 
-            forms they are entitled to prepare themselves as pro se litigants, consistent with Montana's 
-            recognition of self-represented parties' rights.
-          </p>
-        </div>
-
-        <div style={{ marginTop: "20px" }}>
-          <h4 style={{ fontSize: "0.95rem", color: "var(--navy)", marginBottom: "8px", fontWeight: 600 }}>
-            Attorney Verification
-          </h4>
-          <p style={{ fontSize: "0.85rem", color: "var(--charcoal)", lineHeight: "1.7" }}>
-            All attorneys admitted to the WALT network are verified as licensed and in good standing with the 
-            Montana State Bar prior to platform access. WALT does not restrict, direct, or otherwise influence 
-            the independent professional judgment of attorneys in the network.
-          </p>
-        </div>
       </div>
     </div>
   );
 }
-
 // ─── DOCUMENT ASSISTANT (Debt Answer Helper) ───────────────
 function DocumentAssistant({ onBack, onSave, currentUser, onCreateAccount }) {
   const [step, setStep] = useState("method-select"); // method-select, upload, manual-entry, analyzing, chat, generating, preview
@@ -2963,6 +2878,156 @@ function ContactPage({ onSubmit, onBack }) {
   );
 }
 
+// ─── ATTORNEY FINDER ─────────────────────────────────────────
+function AttorneyFinder({ attorneys, onViewProfile, onGetStarted }) {
+  const [practiceArea, setPracticeArea] = useState("");
+  const [feeType, setFeeType] = useState("");
+  const [county, setCounty] = useState("");
+
+  const COUNTIES = [
+    "Beaverhead","Big Horn","Blaine","Broadwater","Carbon","Carter","Cascade",
+    "Chouteau","Custer","Daniels","Dawson","Deer Lodge","Fallon","Fergus",
+    "Flathead","Gallatin","Garfield","Glacier","Golden Valley","Granite",
+    "Hill","Jefferson","Judith Basin","Lake","Lewis and Clark","Liberty",
+    "Lincoln","Madison","McCone","Meagher","Mineral","Missoula","Musselshell",
+    "Park","Petroleum","Phillips","Pondera","Powder River","Powell","Prairie",
+    "Ravalli","Richland","Roosevelt","Rosebud","Sanders","Sheridan",
+    "Silver Bow","Stillwater","Sweet Grass","Teton","Toole","Treasure",
+    "Valley","Wheatland","Wibaux","Yellowstone"
+  ];
+
+  const FEE_TYPES = [
+    { value: "contingency", label: "Contingency (No win, no fee)" },
+    { value: "hourly", label: "Hourly Rate" },
+    { value: "flat", label: "Flat Fee" },
+    { value: "pro-bono", label: "Pro Bono (Free)" },
+    { value: "sliding", label: "Sliding Scale" },
+  ];
+
+  // Filter the attorney list
+  const filtered = attorneys.filter(a => {
+    if (!a || a.status !== "approved") return false;
+    if (practiceArea && !(a.practiceAreas || []).includes(practiceArea)) return false;
+    if (county && a.counties && !a.counties.toLowerCase().includes(county.toLowerCase())) return false;
+    if (feeType === "pro-bono" && !a.proBonoAvailable) return false;
+    if (feeType && feeType !== "pro-bono" && a.feeStructure) {
+      const fs = a.feeStructure.toLowerCase();
+      if (feeType === "contingency" && !fs.includes("contingency")) return false;
+      if (feeType === "hourly" && !fs.includes("hour")) return false;
+      if (feeType === "flat" && !fs.includes("flat")) return false;
+      if (feeType === "sliding" && !fs.includes("sliding")) return false;
+    }
+    return true;
+  });
+
+  const initials = (name) => name ? name.split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase() : "?";
+  const hasFilters = practiceArea || feeType || county;
+
+  return (
+    <div className="finder-page">
+      <h2>Find a Montana Attorney</h2>
+      <p>Browse attorneys in the WALT network. Filter by practice area, fee structure, or county — or describe your situation and let WALT match you automatically.</p>
+
+      {/* Filter bar */}
+      <div className="finder-filters">
+        <div className="finder-filter">
+          <label>Practice Area</label>
+          <select value={practiceArea} onChange={e => setPracticeArea(e.target.value)}>
+            <option value="">All Areas</option>
+            {["Credit Default / Debt Collection","Landlord-Tenant","Family Law","Criminal Defense",
+              "Personal Injury","Employment Law","Estate Planning","Real Estate",
+              "Business Law","Bankruptcy","Immigration","Other"].map(a => (
+              <option key={a} value={a}>{a}</option>
+            ))}
+          </select>
+        </div>
+        <div className="finder-filter">
+          <label>Fee Structure</label>
+          <select value={feeType} onChange={e => setFeeType(e.target.value)}>
+            <option value="">Any Fee Type</option>
+            {FEE_TYPES.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
+          </select>
+        </div>
+        <div className="finder-filter">
+          <label>County</label>
+          <select value={county} onChange={e => setCounty(e.target.value)}>
+            <option value="">All Counties</option>
+            {COUNTIES.map(c => <option key={c} value={c}>{c} County</option>)}
+          </select>
+        </div>
+      </div>
+
+      {/* Results */}
+      <div className="finder-results">
+        {filtered.length === 0 ? (
+          <div className="finder-empty">
+            {hasFilters
+              ? <><p style={{ marginBottom: "12px", fontWeight: 500 }}>No attorneys match those filters.</p><p style={{ fontSize: "0.83rem" }}>Try broadening your search, or describe your situation and let WALT find the right match for you.</p></>
+              : <><p style={{ marginBottom: "12px", fontWeight: 500 }}>No attorneys are listed yet.</p><p style={{ fontSize: "0.83rem" }}>We're building our network. Check back soon, or submit your case and we'll connect you when an attorney joins.</p></>
+            }
+            <button className="btn btn-primary" style={{ marginTop: "20px" }} onClick={onGetStarted}>
+              Describe My Situation Instead
+            </button>
+          </div>
+        ) : filtered.map((a, i) => (
+          <div className="finder-card" key={a.email || i}>
+            <div className="finder-avatar">{initials(a.name)}</div>
+            <div className="finder-info">
+              <div className="finder-name">{a.name}</div>
+              <div className="finder-firm">{a.firm || "Solo Practice"}{a.barNumber ? ` · Bar #${a.barNumber}` : ""}</div>
+              <div className="finder-tags">
+                {a.tier === "gold" && <span className="finder-tag tier-gold">Gold Member</span>}
+                {a.proBonoAvailable && <span className="finder-tag pro-bono">Pro Bono Available</span>}
+                {(a.practiceAreas || []).slice(0, 3).map(p => (
+                  <span key={p} className="finder-tag">{p}</span>
+                ))}
+                {(a.practiceAreas || []).length > 3 && (
+                  <span className="finder-tag">+{a.practiceAreas.length - 3} more</span>
+                )}
+              </div>
+              {a.bio && <p className="finder-bio">{a.bio.slice(0, 160)}{a.bio.length > 160 ? "…" : ""}</p>}
+              {a.counties && (
+                <p style={{ fontSize: "0.75rem", color: "var(--muted)", marginTop: "6px" }}>
+                  Serves: {a.counties}
+                </p>
+              )}
+              <div className="finder-cta-row">
+                {onViewProfile && (
+                  <button
+                    className="btn btn-secondary"
+                    style={{ fontSize: "0.8rem", padding: "7px 18px" }}
+                    onClick={() => onViewProfile(a.email)}
+                  >
+                    View Profile
+                  </button>
+                )}
+                <button
+                  className="btn btn-primary"
+                  style={{ fontSize: "0.8rem", padding: "7px 18px" }}
+                  onClick={onGetStarted}
+                >
+                  Submit My Case
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {filtered.length > 0 && (
+        <div style={{ textAlign: "center", marginTop: "32px", paddingTop: "24px", borderTop: "1px solid var(--sand)" }}>
+          <p style={{ fontSize: "0.85rem", color: "var(--muted)", marginBottom: "12px" }}>
+            Don't see the right fit? Describe your situation and WALT will match you automatically.
+          </p>
+          <button className="btn btn-primary" onClick={onGetStarted}>
+            Get Matched by AI
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── SERVICES PAGE ──────────────────────────────────────────
 function ServicesPage({ onServiceClick }) {
   const services = [
@@ -3242,11 +3307,11 @@ function AdminCommandCenter({ signups, cases, analytics, onApproveAttorney, onDe
                     <td>
                       {attyTab === "approved" ? (
                         <select value={s.tier || "free"} onChange={e => onChangeTier(s.email, e.target.value)} style={{ padding: "3px 7px", borderRadius: "6px", border: `1.5px solid ${tierColor(s.tier || "free")}`, color: tierColor(s.tier || "free"), background: tierBg(s.tier || "free"), fontSize: "0.73rem", fontWeight: 600, fontFamily: "inherit", cursor: "pointer" }}>
-                          <option value="free">Free</option><option value="silver">Silver</option><option value="gold">Gold</option>
+                          <option value="free">Free</option><option value="silver">Silver</option><option value="gold">Gold</option><option value="pro-bono">Pro Bono</option>
                         </select>
                       ) : attyTab === "pending" ? (
                         <select value={approvalTiers[s.email] || "free"} onChange={e => setApprovalTiers(prev => ({ ...prev, [s.email]: e.target.value }))} style={{ padding: "3px 7px", borderRadius: "6px", border: "1.5px solid var(--sand)", fontSize: "0.73rem", fontFamily: "inherit", cursor: "pointer" }}>
-                          <option value="free">Free</option><option value="silver">Silver</option><option value="gold">Gold</option>
+                          <option value="free">Free</option><option value="silver">Silver</option><option value="gold">Gold</option><option value="pro-bono">Pro Bono</option>
                         </select>
                       ) : <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>—</span>}
                     </td>
@@ -3491,9 +3556,10 @@ export default function App() {
     return () => document.removeEventListener("click", handleClick);
   }, []);
 
-  // ── LOAD CASES FROM KV ON MOUNT ───────────────────────────
+  // ── LOAD CASES + APPROVED ATTORNEYS FROM KV ON MOUNT ────────
   useEffect(() => {
     loadCases();
+    loadApprovedAttorneys();
   }, []);
 
   const loadCases = async () => {
@@ -3517,6 +3583,28 @@ export default function App() {
       console.error("Failed to load cases:", e);
     } finally {
       setCasesLoading(false);
+    }
+  };
+
+  // ── LOAD APPROVED ATTORNEYS (public — for finder page) ───────
+  const loadApprovedAttorneys = async () => {
+    try {
+      const res = await fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "get-approved-attorneys" })
+      });
+      const data = await res.json();
+      if (data.attorneys) {
+        // Merge into signups so the finder and admin panel both see them
+        setSignups(prev => {
+          const existingEmails = new Set(prev.map(s => s.email));
+          const newOnes = data.attorneys.filter(a => !existingEmails.has(a.email));
+          return [...prev, ...newOnes];
+        });
+      }
+    } catch (e) {
+      console.error("Failed to load approved attorneys:", e);
     }
   };
 
@@ -3919,6 +4007,7 @@ Respond ONLY with a JSON object (no markdown, no explanation):
       category: caseData.category,
       county: caseData.county,
       isPremium: caseData.isPremium === true,
+      isProBono: caseData.isProBono === true,
       clientFirstName: currentUser.firstName,
       clientLastInitial: currentUser.lastInitial,
       clientPhone: currentUser.phone,
@@ -4196,7 +4285,7 @@ Respond ONLY with a JSON object (no markdown, no explanation):
               You'll be able to log in and access the platform once your account has been approved.
             </p>
             <p style={{ fontSize: "0.85rem", color: "var(--muted)", marginBottom: "32px" }}>
-              If you have questions, contact us at <strong>partners@walt.legal</strong>.
+              If you have questions, please use our <strong>Contact Us</strong> form in the navigation menu.
             </p>
             <button className="btn btn-secondary" onClick={() => setPage("landing")}>
               Return to Home
