@@ -1744,6 +1744,11 @@ function AttorneyDashboard({ cases, currentAttorney, onBidSubmit, signups, onApp
               <div className="case-header">
                 <div className="case-id">
                   Case {c.id}
+                  {c.isProBono && (
+                    <span style={{ marginLeft: "8px", fontSize: "0.65rem", fontWeight: 700, background: "rgba(39,174,96,0.12)", color: "#1a7a42", border: "1px solid rgba(39,174,96,0.3)", padding: "2px 8px", borderRadius: "50px", textTransform: "uppercase", letterSpacing: "0.6px" }}>
+                      Pro Bono
+                    </span>
+                  )}
                 </div>
                 <div className={`case-status status-${status}`}>
                   {wonCase ? "You Won!" : (status === "open" ? "Open" : `${c.bids.length} Bid${c.bids.length > 1 ? "s" : ""}`)}
