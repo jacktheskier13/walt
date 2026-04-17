@@ -145,7 +145,7 @@ async function seedDemoAttorneys() {
         await kv.set("index:attorneys", index);
       }
     } else {
-      // Account exists — patch in missing fields without overwriting user changes
+      // Account exists — patch in any missing or broken fields
       let needsWrite = false;
       const patched = { ...existing };
 
@@ -156,6 +156,21 @@ async function seedDemoAttorneys() {
       if (!patched.status) {
         patched.status = "approved";
         needsWrite = true;
+      }
+      // Always ensure demo accounts have the plaintext password field so
+      // checkPassword can fall back to it if the hash is stale or missing.
+      if (!patched.password) {
+        patched.password = attorney.password;
+        needsWrite = true;
+      }
+      // If a passwordHash exists but was generated with a different salt,
+      // remove it so checkPassword uses the plaintext fallback instead.
+      if (patched.passwordHash && patched.password) {
+        const expectedHash = hashPassword(attorney.password);
+        if (patched.passwordHash !== expectedHash) {
+          delete patched.passwordHash;
+          needsWrite = true;
+        }
       }
 
       if (needsWrite) {
