@@ -32,7 +32,11 @@ const kv = new Redis({
   token: process.env.KV_REST_API_TOKEN,
 });
 
-const ADMIN_EMAIL = "j.davies@daviesinjurylaw.com";
+const ADMIN_EMAILS = [
+  "j.davies@daviesinjurylaw.com",
+  "l.zagar@zagarlaw.com",
+];
+const isAdminEmail = (email) => ADMIN_EMAILS.includes((email || "").toLowerCase());
 
 // ─── Password Helpers ────────────────────────────────────────
 
@@ -437,7 +441,7 @@ export default async function handler(req, res) {
       // ══════════════════════════════════════════════════════
       case "get-signups": {
         const { email } = body;
-        if (email !== ADMIN_EMAIL) {
+        if (!isAdminEmail(email)) {
           return res.status(403).json({ error: "Unauthorized." });
         }
         const signups = (await kv.get("index:signups")) || [];
@@ -449,7 +453,7 @@ export default async function handler(req, res) {
       // ══════════════════════════════════════════════════════
       case "approve-attorney": {
         const { email, tier, callerEmail } = body;
-        if (callerEmail !== ADMIN_EMAIL) {
+        if (!isAdminEmail(callerEmail)) {
           return res.status(403).json({ error: "Unauthorized." });
         }
         if (!email) return res.status(400).json({ error: "Email required." });
@@ -473,7 +477,7 @@ export default async function handler(req, res) {
       // ══════════════════════════════════════════════════════
       case "deny-attorney": {
         const { email, callerEmail } = body;
-        if (callerEmail !== ADMIN_EMAIL) {
+        if (!isAdminEmail(callerEmail)) {
           return res.status(403).json({ error: "Unauthorized." });
         }
         if (!email) return res.status(400).json({ error: "Email required." });
@@ -494,7 +498,7 @@ export default async function handler(req, res) {
       // ══════════════════════════════════════════════════════
       case "set-tier": {
         const { email, tier, callerEmail } = body;
-        if (callerEmail !== ADMIN_EMAIL) {
+        if (!isAdminEmail(callerEmail)) {
           return res.status(403).json({ error: "Unauthorized." });
         }
         if (!email || !tier) return res.status(400).json({ error: "Email and tier required." });
@@ -520,11 +524,11 @@ export default async function handler(req, res) {
       // ══════════════════════════════════════════════════════
       case "delete-account": {
         const { email, callerEmail } = body;
-        if (callerEmail !== ADMIN_EMAIL) {
+        if (!isAdminEmail(callerEmail)) {
           return res.status(403).json({ error: "Unauthorized." });
         }
         if (!email) return res.status(400).json({ error: "Email required." });
-        if (email.toLowerCase() === ADMIN_EMAIL) {
+        if (isAdminEmail(email)) {
           return res.status(403).json({ error: "Cannot delete the admin account." });
         }
 

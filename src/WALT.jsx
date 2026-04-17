@@ -10,6 +10,10 @@ import { useState, useRef, useEffect } from "react";
 //   • Clients select winning bid
 // ============================================================
 
+// ─── ADMIN EMAILS ────────────────────────────────────────────
+const ADMIN_EMAILS = ["j.davies@daviesinjurylaw.com", "l.zagar@zagarlaw.com"];
+const isAdmin = (email) => ADMIN_EMAILS.includes((email || "").toLowerCase());
+
 // ─── MOCK ATTORNEY PARTNERS ─────────────────────────────────
 const ATTORNEY_PARTNERS = [
   { 
@@ -1229,7 +1233,7 @@ function AttorneyDashboard({ cases, currentAttorney, onBidSubmit, signups, onApp
 
   const toggleAssessment = (caseId) => setExpandedAssessments(prev => ({ ...prev, [caseId]: !prev[caseId] }));
 
-  const isAdmin = currentAttorney?.email === "j.davies@daviesinjurylaw.com";
+  const isAdmin = ADMIN_EMAILS.includes(currentAttorney?.email || "");
   const attorneyTier = currentAttorney?.tier || "free";
   const isGold = attorneyTier === "gold";
   const isSilver = attorneyTier === "silver";
@@ -3615,7 +3619,7 @@ export default function App() {
 
   // ── LOAD SIGNUPS FOR ADMIN (j.davies only) ────────────────
   const loadSignups = async (email) => {
-    if (email !== "j.davies@daviesinjurylaw.com") return;
+    if (!ADMIN_EMAILS.includes(email)) return;
     try {
       const res = await fetch("/api/auth", {
         method: "POST",
@@ -3832,7 +3836,7 @@ export default function App() {
       if (data.user.type === "attorney") {
         await loadCases();
         await loadSignups(data.user.email);
-        if (data.user.email === "j.davies@daviesinjurylaw.com") {
+        if (ADMIN_EMAILS.includes(data.user.email)) {
           await loadAnalytics();
           setPage("admin");
         } else {
@@ -4185,13 +4189,13 @@ Respond ONLY with a JSON object (no markdown, no explanation):
               {currentUser.type === "client" && (
                 <button className="drawer-item" onClick={() => { setPage("client-portal"); closeDrawer(); }}>My Cases</button>
               )}
-              {currentUser.type === "attorney" && currentUser.email === "j.davies@daviesinjurylaw.com" && (
+              {currentUser.type === "attorney" && ADMIN_EMAILS.includes(currentUser.email) && (
                 <>
                   <button className="drawer-item" onClick={() => { setPage("admin"); closeDrawer(); }}>Command Center</button>
                   <button className="drawer-item" onClick={() => { setPage("dashboard"); closeDrawer(); }}>Dashboard</button>
                 </>
               )}
-              {currentUser.type === "attorney" && currentUser.email !== "j.davies@daviesinjurylaw.com" && (
+              {currentUser.type === "attorney" && !ADMIN_EMAILS.includes(currentUser.email) && (
                 <button className="drawer-item" onClick={() => { setPage("dashboard"); closeDrawer(); }}>Dashboard</button>
               )}
               <div className="drawer-divider" />
@@ -4391,7 +4395,7 @@ Respond ONLY with a JSON object (no markdown, no explanation):
         />
       )}
 
-      {page === "admin" && currentUser?.email === "j.davies@daviesinjurylaw.com" && (
+      {page === "admin" && ADMIN_EMAILS.includes(currentUser?.email) && (
         <AdminCommandCenter
           signups={signups}
           cases={cases}
